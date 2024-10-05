@@ -5,9 +5,10 @@ import { ChevronLeftIcon, ChevronRightIcon, EyeIcon } from '@heroicons/react/24/
 interface Props {
   pacientes: Paciente[]
   onVerDetalle: (dni: string) => void
+  titulo: string
 }
 
-export default function ListadoPacientes({ pacientes, onVerDetalle }: Props) {
+export default function ListadoPacientes({ pacientes, onVerDetalle, titulo}: Props) {
   const [currentPage, setCurrentPage] = useState(1)
   const patientsPerPage = 10
   const indexOfLastPatient = currentPage * patientsPerPage
@@ -29,7 +30,7 @@ export default function ListadoPacientes({ pacientes, onVerDetalle }: Props) {
 
   return (
     <div className="mt-8">
-      <h3 className="text-xl font-bold mb-4 text-gray-800">Listado de Pacientes</h3>
+      <h3 className="text-xl font-bold mb-4 text-gray-800">{titulo}</h3>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
@@ -39,6 +40,7 @@ export default function ListadoPacientes({ pacientes, onVerDetalle }: Props) {
               <th className="px-4 py-2 border-b text-gray-800 text-left">DNI</th>
               <th className="px-4 py-2 border-b text-gray-800 text-left">Teléfono</th>
               <th className="px-4 py-2 border-b text-gray-800 text-left">Obra Social</th>
+              <th className="px-4 py-2 border-b text-gray-800 text-left">Ver Detalles</th>
             </tr>
           </thead>
           <tbody>
