@@ -19,9 +19,8 @@ public class Consultorio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String domicilio;
-    private String piso;
-    private String oficina;
     private String telefono;
+    private String localidad;
     private String logo;
     private Long medicoId;
     private Boolean activo;

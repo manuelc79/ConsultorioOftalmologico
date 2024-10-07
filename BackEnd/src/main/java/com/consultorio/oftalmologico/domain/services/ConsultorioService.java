@@ -31,9 +31,8 @@ public class ConsultorioService {
         }
         Consultorio nuevoConsultorio = new Consultorio();
         nuevoConsultorio.setDomicilio(dato.domicilio());
-        nuevoConsultorio.setPiso(dato.piso());
-        nuevoConsultorio.setOficina(dato.oficina());
         nuevoConsultorio.setTelefono(dato.telefono());
+        nuevoConsultorio.setLocalidad(dato.localidad());
         nuevoConsultorio.setLogo(dato.logo());
         nuevoConsultorio.setMedicoId(dato.medicoId());
         consultorioRepository.save(nuevoConsultorio);
@@ -41,9 +40,9 @@ public class ConsultorioService {
     }
 
     public DtoRespuestaConsultorio buscarConsultorio(Long id) {
-        var consultorio = consultorioRepository.buscarPorId(id);
+        var consultorio = consultorioRepository.findByMedicoId(id);
         if (consultorio == null) {
-            throw new ObjectAlreadyExistsException("Consultorio Inexistente");
+            throw new EntidadNoEncontradaException("Consultorio Inexistente");
         }
         return new DtoRespuestaConsultorio(consultorio);
     }
@@ -56,14 +55,11 @@ public class ConsultorioService {
         if (dato.domicilio() != null) {
             consultorio.setDomicilio(dato.domicilio());
         }
-        if (dato.piso() != null) {
-            consultorio.setPiso(dato.piso());
-        }
-        if (dato.oficina() != null){
-            consultorio.setOficina(dato.oficina());
-        }
         if (dato.telefono() != null) {
             consultorio.setTelefono(dato.telefono());
+        }
+        if (dato.localidad() != null) {
+            consultorio.setLocalidad(dato.localidad());
         }
         if (dato.logo() != null) {
             consultorio.setLogo(dato.logo());

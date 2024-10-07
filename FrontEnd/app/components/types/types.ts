@@ -23,10 +23,20 @@ export interface Paciente {
   }
 
   export interface Medico {
+    id: number;
     nombre: string;
     apellido: string;
     email: string;
     especialidad: string;
     numeroMatricula: number;
     telefono: string;
+  }
+  
+  export interface Consultorio {
+    id: number;
+    domicilio: string;
+    telefono: string;
+    localidad: string;
+    logo: string;
+    medicoId: number;
   }

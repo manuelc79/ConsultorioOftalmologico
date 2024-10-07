@@ -20,11 +20,13 @@ export default function PaginaPanelControl() {
 
   const [listadoPacientes, setListadoPacientes] = useState<Paciente[]>([])
   const [mostrarListado, setMostrarListado] = useState(false)
+  const [listadoTitulo, setListadoTitulo] = useState('Pacientes del Consultorio')
 
-  const handleMostrarListadoPacientes = (pacientes: Paciente[]) => {
+  const handleMostrarListadoPacientes = (pacientes: Paciente[], titulo?: string) => {
     setListadoPacientes(pacientes)
     setMostrarListado(true)
     setInfoPaciente(null)
+    setListadoTitulo(titulo || 'Pacientes del Consultorio')
   }
 
   useEffect(() => {
@@ -157,6 +159,7 @@ export default function PaginaPanelControl() {
           <ListadoPacientes 
             pacientes={listadoPacientes} 
             onVerDetalle={handleVerDetallePaciente}
+            titulo={listadoTitulo}
           />
         </div>
       )}

@@ -69,7 +69,7 @@ public class MedicoService {
             throw new EntidadNoEncontradaException("Medico no encontrado");
         }
         DetallesMedico detallesMedico = detallesMedicoRepository.findByMedicoId(medico.getId());
-        if (dato.password() != null) {
+        if (dato.password() != null && !dato.password().isBlank() ) {
             medico.setPassword(passwordEncoder.encode(dato.password()));
         }
         if (dato.nombre() != null){

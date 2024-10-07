@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 
 interface Props {
   onPacienteEncontrado: (paciente: Paciente | undefined) => void;
-  onMostrarListadoPacientes: (pacientes: Paciente[]) => void;
+  onMostrarListadoPacientes: (pacientes: Paciente[], titulo?: string, fecha?: string) => void;
 }
 
 const pacienteVacio: Paciente = {
@@ -143,7 +143,7 @@ export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListad
 
       if (response.ok) {
         const pacientes = await response.json()
-        onMostrarListadoPacientes(pacientes)
+        onMostrarListadoPacientes(pacientes, `Pacientes Atendidos el ${new Date(fechaSeleccionada + 'T00:00:00Z').toLocaleDateString('es-ES', { timeZone: 'UTC' })}`)
       } else if (response.status === 404) {
         const errorData = await response.json()
         setModalContent(errorData.mensaje || 'No se encontraron consultas para la fecha seleccionada')
@@ -216,7 +216,7 @@ export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListad
                         active ? 'bg-blue-100 text-blue-900' : 'text-gray-700'
                       } block px-4 py-2 text-sm w-full text-left`}
                     >
-                      Listado de Pacientes
+                      Pacientes del Consultorio
                     </button>
                   )}
                 </Menu.Item>

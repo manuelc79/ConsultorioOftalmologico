@@ -166,7 +166,8 @@ export default function InformacionPaciente({ paciente, medico, onUpdate, onDele
           {modalContent === 'detalleReceta' && (
             <DetalleRecetaModal
               consulta={nuevaConsulta}
-              onImprimir={() => imprimirReceta(nuevaConsulta, paciente, medico)}
+              paciente={paciente}
+              medico={medico}
               onClose={() => setShowModal(false)}
             />
           )}

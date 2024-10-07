@@ -45,7 +45,7 @@ export default function HistorialConsultas({ consultas, onVerDetalleReceta, onIm
                   <button
                     onClick={() => onVerDetalleReceta(consulta)}
                     className="text-blue-600 hover:text-blue-800 mr-2"
-                    title="Ver detalle de la receta"
+                    title="Ver Resumen Historia Clínica"
                   >
                     <EyeIcon className="h-5 w-5 inline" />
                   </button>
