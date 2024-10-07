@@ -5,9 +5,8 @@ import com.consultorio.oftalmologico.domain.entities.medico.Consultorio;
 public record DtoRespuestaConsultorio(
         Long id,
         String domicilio,
-        String piso,
-        String oficina,
         String telefono,
+        String localidad,
         String logo,
         Long medicoId){
 
@@ -15,9 +14,8 @@ public record DtoRespuestaConsultorio(
         this(
                 consultorio.getId(),
                 consultorio.getDomicilio(),
-                consultorio.getPiso(),
-                consultorio.getOficina(),
                 consultorio.getTelefono(),
+                consultorio.getLocalidad(),
                 consultorio.getLogo(),
                 consultorio.getMedicoId()
         );

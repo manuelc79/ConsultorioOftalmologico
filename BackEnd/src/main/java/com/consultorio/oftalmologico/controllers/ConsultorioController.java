@@ -1,6 +1,7 @@
 package com.consultorio.oftalmologico.controllers;
 
 import com.consultorio.oftalmologico.domain.dto.DtoBuscarPorId;
+import com.consultorio.oftalmologico.domain.dto.consultorio.DtoBuscarPorMedicoId;
 import com.consultorio.oftalmologico.domain.dto.consultorio.DtoModificaConsultorio;
 import com.consultorio.oftalmologico.domain.dto.consultorio.DtoRegistroConsultorio;
 import com.consultorio.oftalmologico.domain.services.ConsultorioService;
@@ -25,9 +26,9 @@ public class ConsultorioController {
         return ResponseEntity.ok(consultorio);
     }
 
-    @GetMapping
-    public ResponseEntity<?> buscarConsultorio(@RequestBody DtoBuscarPorId dato) {
-        var consultorio = consultorioService.buscarConsultorio(dato.id());
+    @PostMapping("/find")
+    public ResponseEntity<?> buscarConsultorio(@RequestBody DtoBuscarPorMedicoId dato) {
+        var consultorio = consultorioService.buscarConsultorio(dato.medicoId());
         return ResponseEntity.ok(consultorio);
     }
 
