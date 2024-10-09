@@ -11,9 +11,10 @@ interface Props {
   consultorio: Consultorio;
   onUpdate: () => void;
   onClose: () => void;
+  onUpdateDashboard: () => void;
 }
 
-export default function InformacionMedico({ medico, onUpdate, onClose }: Props) {
+export default function InformacionMedico({ medico, onUpdate, onClose, onUpdateDashboard }: Props) {
   const [showModal, setShowModal] = useState(false)
   const [showConsultorioModal, setShowConsultorioModal] = useState(false)
   const [medicoEditado, setMedicoEditado] = useState({ ...medico, password: '', confirmPassword: '' })
@@ -21,6 +22,8 @@ export default function InformacionMedico({ medico, onUpdate, onClose }: Props) 
   const [consultorio, setConsultorio] = useState<Consultorio | null>(null)
 //  const [isEditing, setIsEditing] = useState(false)
   const [isEditingConsultorio, setIsEditingConsultorio] = useState(false)
+  const [imagenLogo, setImagenLogo] = useState<string | null>(null)
+  const [errorImagen, setErrorImagen] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMedicoEditado({ ...medicoEditado, [e.target.name]: e.target.value })
@@ -47,6 +50,7 @@ export default function InformacionMedico({ medico, onUpdate, onClose }: Props) 
         onUpdate()
         setShowModal(false)
         setError('Información del médico actualizada con éxito')
+        onUpdateDashboard() // Llamar a esta función después de una actualización exitosa
       } else {
         throw new Error('Error al actualizar la información del médico')
       }
@@ -94,19 +98,26 @@ export default function InformacionMedico({ medico, onUpdate, onClose }: Props) 
       const url = consultorio?.id ? 'http://localhost:8085/api/consultorio' : 'http://localhost:8085/api/consultorio'
       const method = consultorio?.id ? 'PUT' : 'POST'
       
+      const consultorioData = {
+        ...consultorio,
+        medicoId: medico.id,
+        logo: imagenLogo // Incluimos la imagen en base64
+      }
+
       const response = await fetch(url, {
         method: method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ ...consultorio, medicoId: medico.id })
+        body: JSON.stringify(consultorioData)
       })
 
       if (response.ok) {
         setError(consultorio?.id ? 'Consultorio modificado con éxito' : 'Consultorio guardado con éxito')
         setShowConsultorioModal(false)
         setIsEditingConsultorio(false)
+        onUpdateDashboard() // Llamar a esta función después de una actualización exitosa
       } else {
         throw new Error(consultorio?.id ? 'Error al modificar el consultorio' : 'Error al guardar el consultorio')
       }
@@ -115,31 +126,23 @@ export default function InformacionMedico({ medico, onUpdate, onClose }: Props) 
     }
   }
 
-//  const handleModificarConsultorio = async () => {
-//    if (isEditing) {
-//      try {
-//        const token = localStorage.getItem('jwtToken')
-//        const response = await fetch('http://localhost:8085/api/consultorio', { 
-//          method: 'PUT',
-//          headers: {
-//            'Content-Type': 'application/json',
-//            'Authorization': `Bearer ${token}`
-//          },
-//          body: JSON.stringify({ ...consultorio, medicoId: medico.id })
-//        })
-
-//        if (response.ok) {
-//          setError('Consultorio modificado exitosamente')
-//          setShowConsultorioModal(false)
-//          setIsEditing(false)
-//        } else {
-//          throw new Error('Error al modificar el consultorio')
-//          }
-//      } catch (error) {
-//        setError('Hubo un error al modificar el consultorio')
-//      }
-//    }
-//  }
+  const handleImagenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 1024 * 1024) {
+        setErrorImagen('La imagen debe ser menor a 1MB')
+        return
+      }
+      
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64String = reader.result as string
+        setImagenLogo(base64String)
+        setConsultorio({ ...consultorio, logo: base64String } as Consultorio)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   return (
     <Modal onClose={onClose}>
@@ -351,14 +354,18 @@ export default function InformacionMedico({ medico, onUpdate, onClose }: Props) 
                   Logo
                 </label>
                 <input
-                  type="text"
+                  type="file"
                   id="logo"
                   name="logo"
-                  value={consultorio?.logo || ''}
-                  onChange={(e) => setConsultorio({ ...consultorio, logo: e.target.value } as Consultorio)}
+                  accept="image/*"
+                  onChange={handleImagenChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800"
                   disabled={!isEditingConsultorio}
                 />
+                {errorImagen && <p className="text-red-500 text-sm mt-1">{errorImagen}</p>}
+                {imagenLogo && (
+                  <img src={imagenLogo} alt="Logo preview" className="mt-2 w-32 h-32 object-contain" />
+                )}
               </div>
               <div className="col-span-2 flex justify-end space-x-2 mt-4">
                 <button

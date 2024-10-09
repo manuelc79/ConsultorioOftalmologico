@@ -12,11 +12,12 @@ import DetalleRecetaModal from './DetalleRecetaModal'
 import ModificarConsultaModal from './ModificarConsultaModal'
 import useConsultas from './hooks/useConsultas'
 import usePaciente from './hooks/usePaciente'
-import { Paciente, Consulta, Medico } from './types/types'
+import { Paciente, Consulta, Medico, Consultorio } from './types/types'
 
 interface Props {
   paciente: Paciente;
   medico: Medico;
+  consultorio: Consultorio;
   onUpdate: (pacienteActualizado: Paciente) => void;
   onDelete: () => void;
 }
@@ -37,7 +38,7 @@ const consultaVacia: Consulta = {
 }
 
 
-export default function InformacionPaciente({ paciente, medico, onUpdate, onDelete }: Props) {
+export default function InformacionPaciente({ paciente, medico, consultorio, onUpdate, onDelete }: Props) {
   const [showModal, setShowModal] = useState(false)
   const [modalContent, setModalContent] = useState('')
   const { consultas, fetchConsultas, error, setError } = useConsultas(paciente.dni)
@@ -132,7 +133,7 @@ export default function InformacionPaciente({ paciente, medico, onUpdate, onDele
       <HistorialConsultas
         consultas={consultas}
         onVerDetalleReceta={verDetalleReceta}
-        onImprimirReceta={(consulta) => imprimirReceta(consulta, paciente, medico)}
+        onImprimirReceta={(consulta) => imprimirReceta(consulta, paciente, medico, consultorio)}
         onModificarConsulta={handleModificarConsulta}
       />
 
@@ -168,6 +169,7 @@ export default function InformacionPaciente({ paciente, medico, onUpdate, onDele
               consulta={nuevaConsulta}
               paciente={paciente}
               medico={medico}
+              consultorio={consultorio}
               onClose={() => setShowModal(false)}
             />
           )}
@@ -192,7 +194,7 @@ export default function InformacionPaciente({ paciente, medico, onUpdate, onDele
 }
 
 
-function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico) {
+function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico, consultorio: Consultorio) {
   const recetaWindow = window.open('', '_blank');
   if (recetaWindow) {
     // Convertir la imagen a una cadena base64
@@ -206,7 +208,6 @@ function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico) 
       const dataURL = canvas.toDataURL('image/png');
 
       recetaWindow.document.write(`<!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -250,7 +251,7 @@ function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico) 
             background-color: #f0f0f0;
             padding: 5px;
             margin-bottom: 10px;
-            text-align: center; /* Alinear texto a la izquierda */
+            text-align: center;
         }
         .prescription-area {
             height: 350px; /* Ajustar altura para que todo quepa */
@@ -289,7 +290,7 @@ function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico) 
         
         <div class="prescription-area">
             <p><strong>Fecha:</strong> ${new Date(consulta.fechaConsulta + 'T00:00:00Z').toLocaleDateString('es-ES', { timeZone: 'UTC' })}</p>
-            <p><strong>Paciente:</strong> ${paciente.nombre} ${paciente.apellido}</p>
+            <p><strong>Paciente:</strong> ${paciente.apellido} ${paciente.nombre}</p>
             ${paciente.ObraSocial ? `
             <p><strong>Obra Social:</strong> ${paciente.ObraSocial}</p>
             ${paciente.numeroObraSocial ? `<p><strong>N°:</strong> ${paciente.numeroObraSocial}</p>` : '<p><strong>N°:</strong>'}
@@ -304,15 +305,12 @@ function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico) 
         
         <div class="footer">
             <hr />
-            <p >Alvear 678 - 1° Piso - Of. 7 - ☎ 4244429</p>
-            <p >4600 - San Salvador de Jujuy - Jujuy</p>
+            <p>${consultorio.domicilio} - ☎ ${consultorio.telefono}</p>
+            <p>${consultorio.localidad}</p>
         </div>
     </div>
 </body>
 </html>
-</html>
-
-
       `);
       recetaWindow.document.close();
       setTimeout(() => {

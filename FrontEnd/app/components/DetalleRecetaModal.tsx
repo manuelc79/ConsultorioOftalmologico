@@ -1,14 +1,15 @@
 import { XMarkIcon, PrinterIcon } from '@heroicons/react/24/solid'
-import { Consulta, Paciente, Medico } from './types/types'
+import { Consulta, Paciente, Medico, Consultorio } from './types/types'
 
 interface Props {
   consulta: Consulta;
   paciente: Paciente;
   medico: Medico;
+  consultorio: Consultorio;
   onClose: () => void;
 }
 
-export default function DetalleRecetaModal({ consulta, paciente, medico, onClose }: Props) {
+export default function DetalleRecetaModal({ consulta, paciente, medico, consultorio, onClose }: Props) {
   const imprimirReceta = () => {
     const recetaWindow = window.open('', '_blank');
     if (recetaWindow) {
@@ -107,7 +108,7 @@ export default function DetalleRecetaModal({ consulta, paciente, medico, onClose
                   <div class="prescription-area">
                       <p style="text-align: center; margin-top: 0px;"><strong>RESUMEN HISTORIA CLÍNICA</strong></p>
                       <p><strong>Fecha:</strong> ${new Date(consulta.fechaConsulta + 'T00:00:00Z').toLocaleDateString('es-ES', { timeZone: 'UTC' })}</p>
-                      <p><strong>Paciente:</strong> ${paciente.nombre} ${paciente.apellido}</p>
+                      <p><strong>Paciente:</strong> ${paciente.apellido} ${paciente.nombre}</p>
                       <p><strong>DNI:</strong> ${paciente.dni}</p>
                       <p><strong>Agudeza Visual OD S/C:</strong> ${consulta.agudezaVisualODSC}</p>
                       <p><strong>Agudeza Visual OI S/C:</strong> ${consulta.agudezaVisualOISC}</p>
@@ -121,8 +122,8 @@ export default function DetalleRecetaModal({ consulta, paciente, medico, onClose
                   
                   <div class="footer">
                       <hr />
-                      <p>Alvear 678 - 1° Piso - Of. 7 - ☎ 4244429</p>
-                      <p>4600 - San Salvador de Jujuy - Jujuy</p>
+                      <p>${consultorio.domicilio} - ☎ ${consultorio.telefono}</p>
+                      <p>${consultorio.localidad}</p>
                   </div>
               </div>
           </body>

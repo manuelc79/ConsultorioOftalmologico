@@ -21,6 +21,7 @@ public class Consultorio {
     private String domicilio;
     private String telefono;
     private String localidad;
+    @Lob
     private String logo;
     private Long medicoId;
     private Boolean activo;
