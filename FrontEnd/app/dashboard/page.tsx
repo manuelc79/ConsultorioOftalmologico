@@ -10,6 +10,8 @@ import ListadoPacientes from '../components/ListadoPacientes'
 
 import { CogIcon } from '@heroicons/react/24/solid'
 import { Paciente, Medico } from '../components/types/types'
+import { Consultorio } from '../components/types/types'
+
 export default function PaginaPanelControl() {
   const [infoMedico, setInfoMedico] = useState<Medico | null>(null)
   const [infoPaciente, setInfoPaciente] = useState<Paciente | null>(null)
@@ -21,6 +23,7 @@ export default function PaginaPanelControl() {
   const [listadoPacientes, setListadoPacientes] = useState<Paciente[]>([])
   const [mostrarListado, setMostrarListado] = useState(false)
   const [listadoTitulo, setListadoTitulo] = useState('Pacientes del Consultorio')
+  const [consultorio, setConsultorio] = useState<Consultorio | null>(null)
 
   const handleMostrarListadoPacientes = (pacientes: Paciente[], titulo?: string) => {
     setListadoPacientes(pacientes)
@@ -31,6 +34,31 @@ export default function PaginaPanelControl() {
 
   useEffect(() => {
     obtenerInfoMedico()
+    const fetchConsultorio = async () => {
+      try {
+        const token = localStorage.getItem('jwtToken')
+        const userId = localStorage.getItem('userId')
+        const response = await fetch(`http://localhost:8085/api/consultorio/find`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ medicoId: userId })
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setConsultorio(data)
+        } else {
+          console.error('Error al cargar los datos del consultorio')
+        }
+      } catch (error) {
+        console.error('Error:', error)
+      }
+    }
+
+    fetchConsultorio()
   }, [])
 
   const obtenerInfoMedico = async () => {
@@ -102,6 +130,34 @@ export default function PaginaPanelControl() {
     }
   }
 
+  const handleUpdateDashboard = () => {
+    obtenerInfoMedico();
+    obtenerConsultorio();
+  }
+
+  const obtenerConsultorio = async () => {
+    try {
+      const token = localStorage.getItem('jwtToken');
+      const response = await fetch('http://localhost:8085/api/consultorio/find', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ medicoId: infoMedico?.id })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setConsultorio(data);
+      } else {
+        console.error('Error al obtener los datos del consultorio');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -125,11 +181,12 @@ export default function PaginaPanelControl() {
         <div>
           <BusquedaPaciente onPacienteEncontrado={handleBusquedaPaciente} onMostrarListadoPacientes={handleMostrarListadoPacientes} />
         </div>
-        {infoPaciente && infoMedico && (
+        {infoPaciente && infoMedico && consultorio && (
           <div>
             <InformacionPaciente 
               paciente={infoPaciente} 
               medico={infoMedico}
+              consultorio={consultorio}
               onUpdate={(pacienteActualizado: Paciente) => {
                 setInfoPaciente(pacienteActualizado)
               }}
@@ -150,8 +207,10 @@ export default function PaginaPanelControl() {
       {showMedicoInfo && infoMedico && (
         <InformacionMedico 
           medico={infoMedico} 
+          consultorio={consultorio ?? {} as Consultorio}
           onUpdate={obtenerInfoMedico} 
           onClose={() => setShowMedicoInfo(false)}
+          onUpdateDashboard={handleUpdateDashboard}
         />
       )}
       {mostrarListado && (
