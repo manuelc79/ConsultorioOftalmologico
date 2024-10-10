@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.type.descriptor.jdbc.VarcharJdbcType;
 
 @Table(name = "consultorios")
 @Entity(name = "Consultorio")
@@ -21,7 +22,7 @@ public class Consultorio {
     private String domicilio;
     private String telefono;
     private String localidad;
-    @Lob
+    @Column(columnDefinition = "varchar")
     private String logo;
     private Long medicoId;
     private Boolean activo;

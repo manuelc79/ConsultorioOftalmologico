@@ -197,17 +197,9 @@ export default function InformacionPaciente({ paciente, medico, consultorio, onU
 function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico, consultorio: Consultorio) {
   const recetaWindow = window.open('', '_blank');
   if (recetaWindow) {
-    // Convertir la imagen a una cadena base64
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0);
-      const dataURL = canvas.toDataURL('image/png');
+    const logoSrc = consultorio.logo || 'image/Logo.png';
 
-      recetaWindow.document.write(`<!DOCTYPE html>
+    recetaWindow.document.write(`<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -215,23 +207,23 @@ function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico, 
     <title>Receta Oftalmológica</title>
     <style>
         @page {
-            size: A4; /* Tamaño de la página para impresión */
-            margin: 0; /* Sin márgenes */
+            size: A4;
+            margin: 0;
         }
         body {
             font-family: Arial, sans-serif;
-            width: 100%; /* Usar todo el ancho de A4 */
-            height: 100%; /* Usar todo el alto de A4 */
+            width: 100%;
+            height: 100%;
             display: flex;
-            justify-content: center; /* Centrar horizontalmente */
-            align-items: center; /* Centrar verticalmente */
-            margin: 0; /* Sin márgenes */
+            justify-content: center;
+            align-items: center;
+            margin: 0;
         }
         .container {
-            width: 10cm; /* Ancho de la receta */
-            height: 15cm; /* Alto de la receta */
-            padding: 10px; /* Relleno interno */
-            box-sizing: border-box; /* Incluir el padding en el tamaño total */
+            width: 10cm;
+            height: 15cm;
+            padding: 10px;
+            box-sizing: border-box;
         }
         .header {
             display: flex;
@@ -240,10 +232,10 @@ function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico, 
             margin-bottom: 5px;
         }
         .eye-icon {
-            font-size: 25px; /* Tamaño ajustado */
+            font-size: 25px;
         }
         .doctor-info {
-            text-align: center; /* Alinear texto a la izquierda */
+            text-align: center;
             flex-grow: 1;
             line-height: 0.5;
         }
@@ -254,18 +246,18 @@ function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico, 
             text-align: center;
         }
         .prescription-area {
-            height: 350px; /* Ajustar altura para que todo quepa */
+            height: 350px;
             margin-bottom: 10px;
-            font-size: 16px; /* Tamaño del texto ajustado */
-            text-align: left; /* Alinear texto a la izquierda */
+            font-size: 16px;
+            text-align: left;
         }
         hr {
             border: none;
-            border-top: 2px solid black; /* Grosor ajustado */
+            border-top: 2px solid black;
         }
         .footer {
-            text-align: center; /* Alinear texto a la izquierda */
-            font-size: 14px; /* Tamaño del texto ajustado */
+            text-align: center;
+            font-size: 14px;
             line-height: 0;
         }
     </style>
@@ -274,7 +266,7 @@ function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico, 
     <div class="container">
         <div class="header">
             <div class="eye-icon">
-                <img src="${dataURL}" alt="Logo" style="height: 2cm;">
+                <img src="${logoSrc}" alt="Logo" style="height: 2cm;">
             </div>
             <div class="doctor-info">
                 <h2 style="font-size: 14px;">DR. ${medico.nombre.toUpperCase()} ${medico.apellido.toUpperCase()}</h2>
@@ -299,8 +291,10 @@ function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico, 
             <p style="font-size: 20px;"><strong>P/Lejos:</p>
 		        <p style="margin-left: 80px;"> OD:</strong> ${consulta.lentesParaLejosOD}</p>
             <p style="margin-left: 80px;"><strong>OI:</strong> ${consulta.lentesParaLejosOI}</p>
+            ${consulta.lentesParaCercaAO && consulta.lentesParaCercaAO.trim() !== '' ? `
             <p style="font-size: 20px;"><strong>P/Cerca:</p>
             <p style="margin-left: 80px;"> AO:</strong> ${consulta.lentesParaCercaAO}</p>
+            ` : ''}
         </div>
         
         <div class="footer">
@@ -311,14 +305,11 @@ function imprimirReceta(consulta: Consulta, paciente: Paciente, medico: Medico, 
     </div>
 </body>
 </html>
-      `);
-      recetaWindow.document.close();
-      setTimeout(() => {
-        recetaWindow.print();
-      }, 1000);
-      
-    };
-    img.src = 'image/Logo.png';
+    `);
+    recetaWindow.document.close();
+    setTimeout(() => {
+      recetaWindow.print();
+    }, 1000);
   }
 }
 

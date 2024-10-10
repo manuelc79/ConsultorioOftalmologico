@@ -5,6 +5,7 @@ import Modal from './Modal'
 import { XMarkIcon } from '@heroicons/react/24/solid'
 import { Medico } from './types/types'
 import { Consultorio } from './types/types'
+import Image from 'next/image'
 
 interface Props {
   medico: Medico;
@@ -363,8 +364,16 @@ export default function InformacionMedico({ medico, onUpdate, onClose, onUpdateD
                   disabled={!isEditingConsultorio}
                 />
                 {errorImagen && <p className="text-red-500 text-sm mt-1">{errorImagen}</p>}
-                {imagenLogo && (
-                  <img src={imagenLogo} alt="Logo preview" className="mt-2 w-32 h-32 object-contain" />
+              </div>
+              <div className="col-span-2">
+                {(consultorio?.logo || imagenLogo) && (
+                  <Image 
+                    src={imagenLogo || consultorio?.logo || ''}
+                    alt="Logo del consultorio" 
+                    width={200} 
+                    height={200} 
+                    className="mt-2 object-contain" 
+                  />
                 )}
               </div>
               <div className="col-span-2 flex justify-end space-x-2 mt-4">
