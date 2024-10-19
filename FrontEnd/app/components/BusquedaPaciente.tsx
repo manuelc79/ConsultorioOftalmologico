@@ -21,7 +21,7 @@ const pacienteVacio: Paciente = {
   numeroObraSocial: ''
 }
 
-export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListadoPacientes }: Props) {
+export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListadoPacientes }: Readonly<Props>) {
   const [dni, setDni] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [modalContent, setModalContent] = useState('')
@@ -168,7 +168,7 @@ export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListad
             type="text"
             value={dni}
             onChange={(e) => setDni(e.target.value)}
-            onKeyPress={(e) => {
+            onKeyDown={(e) => { // Cambiar onKeyPress a onKeyDown
               if (e.key === 'Enter') {
                 e.preventDefault();
                 buscarPaciente();
@@ -193,7 +193,7 @@ export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListad
         </button>
         <Menu as="div" className="relative inline-block text-left">
           <div>
-            <Menu.Button className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
+            <Menu.Button as="button" className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
               Opciones
               <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
             </Menu.Button>
