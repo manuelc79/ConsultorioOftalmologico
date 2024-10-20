@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.consultorio.oftalmologico.OftalmologicoApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 24.81 s -- in com.consultorio.oftalmologico.OftalmologicoApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 21.97 s -- in com.consultorio.oftalmologico.OftalmologicoApplicationTests
