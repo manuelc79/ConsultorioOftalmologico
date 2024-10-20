@@ -6,11 +6,13 @@ import com.consultorio.oftalmologico.domain.dto.consulta.DtoNuevaConsulta;
 import com.consultorio.oftalmologico.domain.dto.consulta.DtoRespuestaConsulta;
 import com.consultorio.oftalmologico.domain.dto.paciente.DtoBuscaPaciente;
 import com.consultorio.oftalmologico.domain.services.ConsultasService;
+import com.consultorio.oftalmologico.infraestructure.errors.errorsDto.DtoRespuestaErrores;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -60,5 +62,16 @@ public class ConsultasController {
                                              @RequestBody DtoBuscaPorFecha dato, Pageable pageable) {
         var consulta = consultasService.listarPorFecha(dato.fechaConsulta(), dato.medicoId(), pageable);
         return ResponseEntity.ok(consulta.getContent());
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity eliminarConsulta(@RequestBody DtoBuscarPorId idConsulta) {
+        Boolean eliminado = consultasService.eliminarConsulta(idConsulta.id());
+        if (eliminado) {
+            return ResponseEntity.ok().body("Conuslta Eliminada");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new DtoRespuestaErrores(HttpStatus.NOT_FOUND.toString(),
+                        "Consulta no encontrada"));
     }
 }

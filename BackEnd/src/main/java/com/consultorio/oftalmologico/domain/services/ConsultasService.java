@@ -133,4 +133,13 @@ public class ConsultasService {
                 }
         );
     }
+
+    public Boolean eliminarConsulta(Long id) {
+        var consulta = consultaRepository.findByIdAndActivo(id);
+        if (consulta == null) {
+            return false;
+        }
+        consultaRepository.delete(consulta);
+        return true;
+    }
 }
