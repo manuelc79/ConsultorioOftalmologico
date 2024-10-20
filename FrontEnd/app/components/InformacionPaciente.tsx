@@ -89,7 +89,7 @@ export default function InformacionPaciente({ paciente, medico, consultorio, onU
 
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch('http://localhost:8085/api/consulta', {
+      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/consulta', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -328,7 +328,7 @@ async function crearConsulta(
       medicoId: Number(userId)
     }
 
-    const response = await fetch('http://localhost:8085/api/consulta', {
+    const response = await fetch('https://consultoriooftalmologico.onrender.com/api/consulta', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -30,7 +30,7 @@ export default function HistorialConsultas({ consultas, onVerDetalleReceta, onIm
   const confirmarEliminacion = async (consultaId: string) => {
     try {
       const token = localStorage.getItem('jwtToken');
-      const response = await fetch('http://localhost:8085/api/consulta/delete', {
+      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/consulta/delete', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

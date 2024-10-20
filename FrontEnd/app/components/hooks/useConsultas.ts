@@ -8,7 +8,7 @@ export default function useConsultas(pacienteDni: string) {
   const fetchConsultas = useCallback(async () => {
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch(`http://localhost:8085/api/consulta/find/paciente`, {
+      const response = await fetch(`https://consultoriooftalmologico.onrender.com/api/consulta/find/paciente`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

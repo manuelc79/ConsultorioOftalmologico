@@ -14,7 +14,7 @@ export default function PaginaInicioSesion() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
-      const response = await fetch('http://localhost:8085/api/login', {
+      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

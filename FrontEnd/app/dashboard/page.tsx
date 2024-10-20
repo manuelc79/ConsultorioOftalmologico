@@ -38,7 +38,7 @@ export default function PaginaPanelControl() {
       try {
         const token = localStorage.getItem('jwtToken')
         const userId = localStorage.getItem('userId')
-        const response = await fetch(`http://localhost:8085/api/consultorio/find`, {
+        const response = await fetch(`https://consultoriooftalmologico.onrender.com/api/consultorio/find`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export default function PaginaPanelControl() {
     }
 
     try {
-      const response = await fetch('http://localhost:8085/api/medico/find', {
+      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/medico/find', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ export default function PaginaPanelControl() {
   const handleVerDetallePaciente = async (dni: string) => {
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch('http://localhost:8085/api/paciente/find', {
+      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/paciente/find', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ export default function PaginaPanelControl() {
   const obtenerConsultorio = async () => {
     try {
       const token = localStorage.getItem('jwtToken');
-      const response = await fetch('http://localhost:8085/api/consultorio/find', {
+      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/consultorio/find', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
