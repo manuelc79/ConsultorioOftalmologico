@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import { XMarkIcon } from '@heroicons/react/24/solid'
-import { Medico } from './types/types'
-import { Consultorio } from './types/types'
+import { Medico, Consultorio } from './types/types' // Importar ambos tipos en una sola línea
 import Image from 'next/image'
 
 interface Props {

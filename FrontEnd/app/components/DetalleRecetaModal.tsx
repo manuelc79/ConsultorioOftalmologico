@@ -9,7 +9,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function DetalleRecetaModal({ consulta, paciente, medico, consultorio, onClose }: Props) {
+export default function DetalleRecetaModal({ consulta, paciente, medico, consultorio, onClose }: Readonly<Props>) {
   const imprimirReceta = () => {
     const recetaWindow = window.open('', '_blank');
     if (recetaWindow) {

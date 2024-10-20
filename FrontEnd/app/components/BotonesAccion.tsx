@@ -1,13 +1,13 @@
-import { PlusCircleIcon, PencilIcon } from '@heroicons/react/24/solid' // TrashIcon icono de eliminación
+import { PlusCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid' // TrashIcon icono de eliminación
 
 interface Props {
-  onNuevaConsulta: () => void;
-  onEditarPaciente: () => void;
-  //onEliminarPaciente: () => void;
+  readonly onNuevaConsulta: () => void; // Marcar como de solo lectura
+  readonly onEditarPaciente: () => void; // Marcar como de solo lectura
+  readonly onEliminarPaciente: () => void; // Marcar como de solo lectura
 }
 
-export default function BotonesAccion(props: Props) { // Marcar las props como de solo lectura
-  const { onNuevaConsulta, onEditarPaciente } = props; 
+export default function BotonesAccion(props: Readonly<Props>) { // Marcar las props como de solo lectura
+  const { onNuevaConsulta, onEditarPaciente, onEliminarPaciente } = props; 
   return (
     <div className="flex flex-col space-y-2">
       <button
@@ -24,7 +24,7 @@ export default function BotonesAccion(props: Props) { // Marcar las props como d
         <PencilIcon className="h-5 w-5 mr-2" />
         <span className="hidden sm:inline">Modificar Paciente</span>
       </button>
-      {/*
+      
       <button
         onClick={onEliminarPaciente}
         className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 flex items-center justify-center"
@@ -32,7 +32,7 @@ export default function BotonesAccion(props: Props) { // Marcar las props como d
         <TrashIcon className="h-5 w-5 mr-2" />
         <span className="hidden sm:inline">Eliminar Paciente</span>
       </button>
-      */}
+      
     </div>
   )
 }

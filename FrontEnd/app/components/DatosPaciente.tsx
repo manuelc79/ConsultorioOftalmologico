@@ -1,10 +1,10 @@
 import { Paciente } from './types/types'
 
 interface Props {
-  paciente: Paciente;
+  readonly paciente: Paciente; // Cambiado a readonly
 }
 
-export default function DatosPaciente({ paciente }: Props) {
+export default function DatosPaciente({ paciente }: Props) { // Cambiado a Props
 
   return (
     <div>

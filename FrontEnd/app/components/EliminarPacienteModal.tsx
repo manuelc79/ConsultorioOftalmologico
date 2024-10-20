@@ -5,7 +5,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function EliminarPacienteModal({ onConfirm, onClose }: Props) {
+export default function EliminarPacienteModal({ onConfirm, onClose }: Readonly<Props>) {
   return (
     <div className="relative p-6 bg-white rounded-lg shadow-xl max-w-4xl w-full text-black">
       <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-red-700">
