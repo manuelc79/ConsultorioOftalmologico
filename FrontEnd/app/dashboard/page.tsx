@@ -33,31 +33,17 @@ export default function PaginaPanelControl() {
   }
 
   useEffect(() => {
-    obtenerInfoMedico()
-    const fetchConsultorio = async () => {
-      try {
-        const token = localStorage.getItem('jwtToken')
-        const userId = localStorage.getItem('userId')
-        const response = await fetch(`https://consultoriooftalmologico.onrender.com/api/consultorio/find`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ medicoId: userId })
-        })
+    const token = localStorage.getItem('jwtToken')
+    const userId = localStorage.getItem('userId')
 
-        if (response.ok) {
-          const data = await response.json()
-          setConsultorio(data)
-        } else {
-          console.error('Error al cargar los datos del consultorio')
-        }
-      } catch (error) {
-        console.error('Error:', error)
-      }
+    if (!token || !userId) {
+      // Si no hay token, no redirigir inmediatamente, solo mostrar un mensaje
+      setModalContent('No se ha encontrado sesión activa. Por favor, inicie sesión nuevamente.')
+      setShowModal(true)
+      return
     }
 
+    obtenerInfoMedico()
     fetchConsultorio()
   }, [])
 
@@ -66,7 +52,8 @@ export default function PaginaPanelControl() {
     const id = localStorage.getItem('userId')
 
     if (!token || !id) {
-      router.push('/')
+      setModalContent('No se ha encontrado sesión activa. Por favor, inicie sesión nuevamente.')
+      setShowModal(true)
       return
     }
 
@@ -91,9 +78,37 @@ export default function PaginaPanelControl() {
         throw new Error('Error al obtener información del médico')
       }
     } catch (error) {
-      setModalContent('Su sesión a expirado. Por favor vuelva a iniciar sesión.')
+      setModalContent('Ocurrió un error. Por favor, intente nuevamente.')
       setShowModal(true)
-      router.push('/')
+    }
+  }
+
+  const fetchConsultorio = async () => {
+    const token = localStorage.getItem('jwtToken')
+    const userId = localStorage.getItem('userId')
+
+    if (!token || !userId) {
+      return; // No hacer nada si no hay token
+    }
+
+    try {
+      const response = await fetch(`https://consultoriooftalmologico.onrender.com/api/consultorio/find`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ medicoId: userId })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setConsultorio(data)
+      } else {
+        console.error('Error al cargar los datos del consultorio')
+      }
+    } catch (error) {
+      console.error('Error:', error)
     }
   }
 
@@ -159,10 +174,10 @@ export default function PaginaPanelControl() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('jwtToken');
-    localStorage.removeItem('userId');
-    router.push('/'); // Redirigir a la página de inicio de sesión
-  };
+    localStorage.removeItem('jwtToken')
+    localStorage.removeItem('userId')
+    router.push('/') // Redirigir a la página de inicio de sesión
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -209,7 +224,6 @@ export default function PaginaPanelControl() {
             />
           </div>
         )}
-        
       </div>
       {showModal && (
         <Modal onClose={() => setShowModal(false)}>
