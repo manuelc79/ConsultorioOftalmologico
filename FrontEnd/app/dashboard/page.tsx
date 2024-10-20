@@ -158,6 +158,12 @@ export default function PaginaPanelControl() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('userId');
+    router.push('/'); // Redirigir a la página de inicio de sesión
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -174,6 +180,12 @@ export default function PaginaPanelControl() {
             title="Ver información del médico"
           >
             <CogIcon className="h-6 w-6" />
+          </button>
+          <button
+            onClick={handleLogout}
+            className="ml-4 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+          >
+            Logout
           </button>
         </div>
       </div>
