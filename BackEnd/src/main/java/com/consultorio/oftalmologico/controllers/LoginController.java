@@ -4,7 +4,7 @@ import com.consultorio.oftalmologico.domain.dto.medico.DtoAutenticarMedico;
 import com.consultorio.oftalmologico.domain.dto.token.DtoJwtToken;
 import com.consultorio.oftalmologico.domain.entities.medico.Medico;
 import com.consultorio.oftalmologico.domain.services.TokenService;
-import com.consultorio.oftalmologico.infraestructure.errors.errorsDto.DtoRespuestaErrores;
+import com.consultorio.oftalmologico.infraestructure.errors.errorsdto.DtoRespuestaErrores;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

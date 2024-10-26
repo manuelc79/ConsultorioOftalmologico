@@ -6,6 +6,7 @@ import { Menu, Transition } from '@headlessui/react'
 import Modal from './Modal'
 import { Paciente } from './types/types'
 import { useRouter } from 'next/navigation'
+import endpoints from './api'
 
 interface Props {
   onPacienteEncontrado: (paciente: Paciente | undefined) => void;
@@ -34,7 +35,7 @@ export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListad
   const buscarPaciente = async () => {
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/paciente/find', {
+      const response = await fetch(endpoints.pacienteFind, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,7 +80,7 @@ export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListad
   const crearNuevoPaciente = async () => {
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/paciente', {
+      const response = await fetch(endpoints.pacienteCreate, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +107,7 @@ export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListad
   const handleListadoPacientes = async () => {
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/paciente', {
+      const response = await fetch(endpoints.pacienteCreate, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -132,7 +133,7 @@ export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListad
     try {
       const token = localStorage.getItem('jwtToken')
       const medicoId = localStorage.getItem('userId')
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/consulta/find/fecha', {
+      const response = await fetch(endpoints.consultaFindFecha, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -168,7 +169,7 @@ export default function BusquedaPaciente({ onPacienteEncontrado, onMostrarListad
             type="text"
             value={dni}
             onChange={(e) => setDni(e.target.value)}
-            onKeyDown={(e) => { // Cambiar onKeyPress a onKeyDown
+            onKeyDown={(e) => { 
               if (e.key === 'Enter') {
                 e.preventDefault();
                 buscarPaciente();

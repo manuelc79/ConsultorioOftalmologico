@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Consulta } from '../types/types'
+import endpoints from '../api'
 
 export default function useConsultas(pacienteDni: string) {
   const [consultas, setConsultas] = useState<Consulta[]>([])
@@ -8,7 +9,7 @@ export default function useConsultas(pacienteDni: string) {
   const fetchConsultas = useCallback(async () => {
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch(`https://consultoriooftalmologico.onrender.com/api/consulta/find/paciente`, {
+      const response = await fetch(endpoints.consultaFindPaciente, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

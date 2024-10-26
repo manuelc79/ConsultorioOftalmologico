@@ -1,6 +1,6 @@
 package com.consultorio.oftalmologico.infraestructure.errors;
 
-import com.consultorio.oftalmologico.infraestructure.errors.errorsDto.DtoRespuestaErrores;
+import com.consultorio.oftalmologico.infraestructure.errors.errorsdto.DtoRespuestaErrores;
 import com.consultorio.oftalmologico.infraestructure.errors.exceptions.EntidadNoEncontradaException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 

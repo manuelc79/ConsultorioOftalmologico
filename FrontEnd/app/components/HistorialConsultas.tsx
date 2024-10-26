@@ -3,6 +3,7 @@ import { Consulta } from './types/types'
 import { EyeIcon, PrinterIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid'
 import { useState, useEffect } from 'react'
 import EliminarConsultaModal from './EliminarConsultaModal'
+import endpoints from './api'
 
 interface Props {
   readonly consultas: Consulta[]; // Marcar como readonly
@@ -30,7 +31,7 @@ export default function HistorialConsultas({ consultas, onVerDetalleReceta, onIm
   const confirmarEliminacion = async (consultaId: string) => {
     try {
       const token = localStorage.getItem('jwtToken');
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/consulta/delete', {
+      const response = await fetch(endpoints.consultaDelete, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

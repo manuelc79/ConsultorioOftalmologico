@@ -5,7 +5,7 @@ import com.consultorio.oftalmologico.domain.dto.consultorio.DtoBuscarPorMedicoId
 import com.consultorio.oftalmologico.domain.dto.consultorio.DtoModificaConsultorio;
 import com.consultorio.oftalmologico.domain.dto.consultorio.DtoRegistroConsultorio;
 import com.consultorio.oftalmologico.domain.services.ConsultorioService;
-import com.consultorio.oftalmologico.infraestructure.errors.errorsDto.DtoRespuestaErrores;
+import com.consultorio.oftalmologico.infraestructure.errors.errorsdto.DtoRespuestaErrores;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

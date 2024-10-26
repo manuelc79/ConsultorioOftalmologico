@@ -1,4 +1,4 @@
-FROM amazoncorretto:17-alpine
+FROM amazoncorretto:17-alpine-jsk
 
 COPY target/oftalmologico.jar app.jar
 

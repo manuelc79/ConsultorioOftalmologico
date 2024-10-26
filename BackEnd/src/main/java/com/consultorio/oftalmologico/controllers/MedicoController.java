@@ -1,12 +1,11 @@
 package com.consultorio.oftalmologico.controllers;
 
 import com.consultorio.oftalmologico.domain.dto.DtoBuscarPorId;
-import com.consultorio.oftalmologico.domain.dto.medico.DtoAutenticarMedico;
 import com.consultorio.oftalmologico.domain.dto.medico.DtoModificaMedico;
 import com.consultorio.oftalmologico.domain.dto.medico.DtoRegistroMedico;
 import com.consultorio.oftalmologico.domain.services.MedicoService;
 import com.consultorio.oftalmologico.domain.validations.ValidationMedico;
-import com.consultorio.oftalmologico.infraestructure.errors.errorsDto.DtoRespuestaErrores;
+import com.consultorio.oftalmologico.infraestructure.errors.errorsdto.DtoRespuestaErrores;
 import com.consultorio.oftalmologico.infraestructure.errors.exceptions.EntidadNoEncontradaException;
 import com.consultorio.oftalmologico.infraestructure.errors.exceptions.ObjectAlreadyExistsException;
 import jakarta.validation.Valid;

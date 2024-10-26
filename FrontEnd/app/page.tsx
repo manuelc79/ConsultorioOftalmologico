@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Modal from './components/Modal'
+import endpoints from './components/api'
 
 export default function PaginaInicioSesion() {
   const [email, setEmail] = useState('')
@@ -14,7 +15,7 @@ export default function PaginaInicioSesion() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/login', {
+      const response = await fetch(endpoints.login, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

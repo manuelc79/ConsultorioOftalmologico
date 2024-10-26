@@ -5,6 +5,7 @@ import Modal from './Modal'
 import { XMarkIcon } from '@heroicons/react/24/solid'
 import { Medico, Consultorio } from './types/types' // Importar ambos tipos en una sola línea
 import Image from 'next/image'
+import endpoints from './api'
 
 interface Props {
   medico: Medico;
@@ -37,7 +38,7 @@ export default function InformacionMedico({ medico, onUpdate, onClose, onUpdateD
     }
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/medico', {
+      const response = await fetch(endpoints.medicoUpdate, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +63,7 @@ export default function InformacionMedico({ medico, onUpdate, onClose, onUpdateD
   const handleConsultorioClick = async () => {
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/consultorio/find', {
+      const response = await fetch(endpoints.consultorioFind, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +96,7 @@ export default function InformacionMedico({ medico, onUpdate, onClose, onUpdateD
     }
     try {
       const token = localStorage.getItem('jwtToken')
-      const url = consultorio?.id ? 'http://localhost:8085/api/consultorio' : 'https://consultoriooftalmologico.onrender.com/api/consultorio'
+      const url = consultorio?.id ? endpoints.consultorioUpdate : endpoints.consultorioCreate
       const method = consultorio?.id ? 'PUT' : 'POST'
       
       const consultorioData = {

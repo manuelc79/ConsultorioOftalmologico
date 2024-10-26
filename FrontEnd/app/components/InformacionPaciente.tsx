@@ -13,6 +13,7 @@ import ModificarConsultaModal from './ModificarConsultaModal'
 import useConsultas from './hooks/useConsultas'
 import usePaciente from './hooks/usePaciente'
 import { Paciente, Consulta, Medico, Consultorio } from './types/types'
+import endpoints from './api'
 
 interface Props {
   paciente: Paciente;
@@ -89,7 +90,7 @@ export default function InformacionPaciente({ paciente, medico, consultorio, onU
 
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/consulta', {
+      const response = await fetch(endpoints.consultaUpdate, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -328,7 +329,7 @@ async function crearConsulta(
       medicoId: Number(userId)
     }
 
-    const response = await fetch('https://consultoriooftalmologico.onrender.com/api/consulta', {
+    const response = await fetch(endpoints.consultaCreate, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

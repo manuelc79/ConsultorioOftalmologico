@@ -11,6 +11,7 @@ import ListadoPacientes from '../components/ListadoPacientes'
 import { CogIcon } from '@heroicons/react/24/solid'
 import { Paciente, Medico } from '../components/types/types'
 import { Consultorio } from '../components/types/types'
+import endpoints from '../components/api'
 
 export default function PaginaPanelControl() {
   const [infoMedico, setInfoMedico] = useState<Medico | null>(null)
@@ -58,7 +59,7 @@ export default function PaginaPanelControl() {
     }
 
     try {
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/medico/find', {
+      const response = await fetch(endpoints.medicoFind, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +93,7 @@ export default function PaginaPanelControl() {
     }
 
     try {
-      const response = await fetch(`https://consultoriooftalmologico.onrender.com/api/consultorio/find`, {
+      const response = await fetch(endpoints.consultorioFind, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +125,7 @@ export default function PaginaPanelControl() {
   const handleVerDetallePaciente = async (dni: string) => {
     try {
       const token = localStorage.getItem('jwtToken')
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/paciente/find', {
+      const response = await fetch(endpoints.pacienteFind, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +154,7 @@ export default function PaginaPanelControl() {
   const obtenerConsultorio = async () => {
     try {
       const token = localStorage.getItem('jwtToken');
-      const response = await fetch('https://consultoriooftalmologico.onrender.com/api/consultorio/find', {
+      const response = await fetch(endpoints.consultorioFind, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
