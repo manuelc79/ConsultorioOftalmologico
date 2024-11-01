@@ -1,0 +1,14 @@
+package com.consultorio.oftalmologico.presentation.dto.consultorio;
+
+import jakarta.persistence.Lob;
+import org.hibernate.type.descriptor.jdbc.VarcharJdbcType;
+
+public record DtoModificaConsultorio(
+                Long id,
+                String domicilio,
+                String telefono,
+                String localidad,
+                String logo,
+                Long usuarioId,
+                Long clinicaId) {
+}

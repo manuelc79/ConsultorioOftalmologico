@@ -1,7 +1,7 @@
 package com.consultorio.oftalmologico.domain.entities.historiaclinica;
 
-import com.consultorio.oftalmologico.domain.entities.medico.Medico;
 import com.consultorio.oftalmologico.domain.entities.paciente.Paciente;
+import com.consultorio.oftalmologico.domain.entities.usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Table(name = "historia_clinica")
+@Table(name = "historia_clinica", indexes = {
+        @Index(name = "idx_hc_paciente_fecha", columnList = "paciente_dni, fecha_consulta"),
+        @Index(name = "idx_hc_usuario_fecha", columnList = "usuario_id, fecha_consulta")
+})
 @Entity(name = "HistoriaClinica")
 @Data
 @NoArgsConstructor
@@ -30,9 +33,15 @@ public class HistoriaClinica {
     private String lentesParaCercaAO; // Lentes Para Cerca Ambos Ojos
     private String observaciones;
     private Long pacienteDni;
-    private Long medicoId;
+    //private Long usuarioId;
+    private Long clinicaId;
     private Boolean activo;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paciente_id")
+    private Paciente paciente;
 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 }

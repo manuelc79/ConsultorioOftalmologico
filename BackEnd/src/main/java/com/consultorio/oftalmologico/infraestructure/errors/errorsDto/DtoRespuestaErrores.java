@@ -1,4 +1,4 @@
-package com.consultorio.oftalmologico.infraestructure.errors.errorsdto;
+package com.consultorio.oftalmologico.infraestructure.errors.errorsDto;
 
 import java.util.Map;
 

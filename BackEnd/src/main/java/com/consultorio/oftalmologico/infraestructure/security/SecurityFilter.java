@@ -1,7 +1,7 @@
 package com.consultorio.oftalmologico.infraestructure.security;
 
-import com.consultorio.oftalmologico.domain.repository.MedicoRepository;
-import com.consultorio.oftalmologico.domain.services.TokenService;
+import com.consultorio.oftalmologico.domain.repository.UsuarioRepository;
+import com.consultorio.oftalmologico.application.services.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import java.io.IOException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     @Autowired
-    private MedicoRepository medicoRepository;
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private TokenService tokenService;
@@ -37,7 +37,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             var userName = tokenService.getSubject(token); // Extrae el nombre del usuario
             if (userName != null){
                 // token válido
-                var usuario = medicoRepository.findByEmail(userName);
+                var usuario = usuarioRepository.findByEmail(userName);
                 var authentication = new UsernamePasswordAuthenticationToken(usuario, null,
                         usuario.getAuthorities()); // forzamos el inicio
                 SecurityContextHolder.getContext().setAuthentication(authentication);
