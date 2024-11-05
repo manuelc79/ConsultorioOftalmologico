@@ -1,14 +1,24 @@
 package com.consultorio.oftalmologico.domain.entities.historiaclinica;
 
+import java.time.LocalDate;
+
+import com.consultorio.oftalmologico.domain.entities.clinica.Clinica;
 import com.consultorio.oftalmologico.domain.entities.paciente.Paciente;
 import com.consultorio.oftalmologico.domain.entities.usuario.Usuario;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Table(name = "historia_clinica", indexes = {
         @Index(name = "idx_hc_paciente_fecha", columnList = "paciente_dni, fecha_consulta"),
@@ -32,9 +42,6 @@ public class HistoriaClinica {
     private String lentesParaLejosOD; // Lentes Para Lejos Ojo Derecho
     private String lentesParaCercaAO; // Lentes Para Cerca Ambos Ojos
     private String observaciones;
-    private Long pacienteDni;
-    //private Long usuarioId;
-    private Long clinicaId;
     private Boolean activo;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,4 +51,8 @@ public class HistoriaClinica {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "clinica_id")
+    private Clinica clinica;
 }

@@ -1,16 +1,27 @@
 package com.consultorio.oftalmologico.application.services;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
+
+import com.consultorio.oftalmologico.domain.entities.consultorio.Consultorio;
+import com.consultorio.oftalmologico.domain.entities.usuario.Usuario;
+import com.consultorio.oftalmologico.domain.enums.UserRole;
+import com.consultorio.oftalmologico.domain.repository.ClinicaRepository;
+import com.consultorio.oftalmologico.domain.repository.ConsultorioRepository;
+import com.consultorio.oftalmologico.domain.repository.UsuarioRepository;
+import com.consultorio.oftalmologico.infraestructure.errors.exceptions.EntidadNoEncontradaException;
+import com.consultorio.oftalmologico.infraestructure.errors.exceptions.ObjectAlreadyExistsException;
 import com.consultorio.oftalmologico.presentation.dto.consultorio.DtoModificaConsultorio;
 import com.consultorio.oftalmologico.presentation.dto.consultorio.DtoRegistroConsultorio;
 import com.consultorio.oftalmologico.presentation.dto.consultorio.DtoRespuestaConsultorio;
-import com.consultorio.oftalmologico.domain.entities.consultorio.Consultorio;
-import com.consultorio.oftalmologico.domain.repository.ConsultorioRepository;
-import com.consultorio.oftalmologico.domain.repository.UsuarioRepository;
-import com.consultorio.oftalmologico.domain.repository.ClinicaRepository;
-import com.consultorio.oftalmologico.infraestructure.errors.exceptions.EntidadNoEncontradaException;
-import com.consultorio.oftalmologico.infraestructure.errors.exceptions.ObjectAlreadyExistsException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ConsultorioService {
@@ -24,38 +35,81 @@ public class ConsultorioService {
     @Autowired
     private ClinicaRepository clinicaRepository;
 
-    public DtoRespuestaConsultorio crearConsultorio(DtoRegistroConsultorio dato, Long clinicaId) {
-        var consultorio = consultorioRepository.findByUsuarioId(dato.usuarioId());
-        if (consultorio != null) {
-            throw new ObjectAlreadyExistsException("Este medico ya tiene asignado un consultorio");
+    public DtoRespuestaConsultorio crearConsultorio(DtoRegistroConsultorio dato, Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
+        if (usuarioLogueado.getRole() != UserRole.ADMIN) {
+            throw new AccessDeniedException("No tiene permiso para realizar esta acción.");
         }
-        var usuario = usuarioRepository.findByIdAndActivo(dato.usuarioId(), clinicaId);
-        if (usuario == null) {
-            throw new EntidadNoEncontradaException("Medico inexistente");
+
+        if (dato.usuario() != null) {
+            var usuario = usuarioRepository.findByIdAndActivo(dato.usuario().getId(), dato.clinica().getId());
+            if (usuario == null) {
+                throw new EntidadNoEncontradaException("Medico inexistente");
+            }
+
+            var consultorioExistente = consultorioRepository.findByUsuarioId(dato.usuario().getId());
+            if (consultorioExistente != null) {
+                throw new ObjectAlreadyExistsException("Este medico ya tiene asignado un consultorio");
+            }
         }
+        if (dato.clinica() == null || clinicaRepository.findByIdAndTrue(dato.clinica().getId()) == null) {
+            throw new EntidadNoEncontradaException("Clínica inexistente, debe enviar un valor de clínica válido");
+        }
+
         Consultorio nuevoConsultorio = new Consultorio();
         nuevoConsultorio.setDomicilio(dato.domicilio());
         nuevoConsultorio.setTelefono(dato.telefono());
         nuevoConsultorio.setLocalidad(dato.localidad());
         nuevoConsultorio.setLogo(dato.logo());
-        nuevoConsultorio.setUsuario(usuario);
+        nuevoConsultorio.setActivo(true);
+        nuevoConsultorio.setUsuario(dato.usuario());
+        nuevoConsultorio.setClinica(dato.clinica());
+
         consultorioRepository.save(nuevoConsultorio);
         return new DtoRespuestaConsultorio(nuevoConsultorio);
     }
 
-    public DtoRespuestaConsultorio buscarConsultorio(Long id) {
-        var consultorio = consultorioRepository.findByUsuarioId(id);
+    public DtoRespuestaConsultorio buscarConsultorio(Long id, Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
+        Consultorio consultorio;
+        if (usuarioLogueado.getRole() == UserRole.ADMIN) {
+            consultorio = consultorioRepository.findByUsuarioId(id);
+        } else if (usuarioLogueado.getRole() == UserRole.MEDICO && usuarioLogueado.getId() != id) {
+            throw new AccessDeniedException("No tiene permiso para realizar esta acción.");
+        } else {
+            consultorio = consultorioRepository.findByUsuarioIdAndClinicaId(id, usuarioLogueado.getClinica().getId());
+        }
+
         if (consultorio == null) {
-            throw new EntidadNoEncontradaException("Consultorio Inexistente");
+            throw new EntidadNoEncontradaException("Este usuario aún no tiene asignado un consultorio");
         }
         return new DtoRespuestaConsultorio(consultorio);
     }
 
-    public DtoRespuestaConsultorio modificaConsultorio(DtoModificaConsultorio dato) {
-        var consultorio = consultorioRepository.buscarPorId(dato.id());
+    public DtoRespuestaConsultorio modificaConsultorio(DtoModificaConsultorio dato, Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
+        Consultorio consultorio = obtenerConsultorio(dato, usuarioLogueado);
+        
         if (consultorio == null) {
             throw new EntidadNoEncontradaException("Consultorio inexistente");
         }
+        
+        actualizarConsultorio(dato, consultorio, usuarioLogueado);
+        consultorioRepository.save(consultorio);
+        return new DtoRespuestaConsultorio(consultorio);
+    }
+
+    private Consultorio obtenerConsultorio(DtoModificaConsultorio dato, Usuario usuarioLogueado) {
+        if (usuarioLogueado.getRole() == UserRole.ADMIN) {
+            return consultorioRepository.buscarPorId(dato.id());
+        } else if (usuarioLogueado.getRole() == UserRole.MEDICO && usuarioLogueado.getConsultorio().getId() != dato.id()) {
+            throw new AccessDeniedException("No tiene permiso para realizar esta acción.");
+        } else {
+            return consultorioRepository.findByIdAndClinicaId(dato.id(), usuarioLogueado.getClinica().getId());
+        }
+    }
+
+    private void actualizarConsultorio(DtoModificaConsultorio dato, Consultorio consultorio, Usuario usuarioLogueado) {
         if (dato.domicilio() != null) {
             consultorio.setDomicilio(dato.domicilio());
         }
@@ -68,30 +122,73 @@ public class ConsultorioService {
         if (dato.logo() != null) {
             consultorio.setLogo(dato.logo());
         }
-        if (dato.usuarioId() != null) {
-            var usuario = usuarioRepository.findByIdAndActivo(dato.usuarioId(), dato.clinicaId());
-            if (usuario == null) {
-                throw new EntidadNoEncontradaException("Médico inexistente");
+        if (usuarioLogueado.getRole() == UserRole.ADMIN) {
+            if (dato.usuario() != null && dato.usuario().getId() != null) {
+                var usuario = usuarioRepository.findByIdAndActivo(dato.usuario().getId(), dato.clinica().getId());
+                if (usuario == null) {
+                    throw new EntidadNoEncontradaException("Médico inexistente");
+                }
+                consultorio.setUsuario(usuario);
             }
-            consultorio.setUsuario(usuario);
-        }
-        if (dato.clinicaId() != null) {
-            var clinica = clinicaRepository.findById(dato.clinicaId());
-            if (clinica.isEmpty()) {
-                throw new EntidadNoEncontradaException("Clínica inexistente");
+            if (dato.clinica() != null && dato.clinica().getId() != null) {
+                var clinica = clinicaRepository.findById(dato.clinica().getId());
+                if (clinica.isEmpty()) {
+                    throw new EntidadNoEncontradaException("Clínica inexistente");
+                }
+                consultorio.setClinica(clinica.get());
             }
-            consultorio.setClinica(clinica.get());
         }
-        consultorioRepository.save(consultorio);
-        return new DtoRespuestaConsultorio(consultorio);
     }
 
-    public Boolean eliminarConsultorio(Long id) {
+    public Boolean eliminarConsultorio(Long id, Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
+        if (usuarioLogueado.getRole() != UserRole.ADMIN) {
+            throw new AccessDeniedException("No tiene permiso para realizar esta acción.");
+        }
         var consultorio = consultorioRepository.buscarPorId(id);
         if (consultorio == null) {
             return false;
         }
         consultorio.setActivo(false);
+        consultorioRepository.save(consultorio);
         return true;
+    }
+
+    public Boolean restaurarConsultorio(Long id, Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
+        if (usuarioLogueado.getRole() != UserRole.ADMIN) {
+            throw new AccessDeniedException("No tiene permiso para realizar esta acción.");
+        }
+        var consultorio = consultorioRepository.findByIdAndActivoFalse(id);
+        if (consultorio == null) {
+            return false;
+        }
+        consultorio.setActivo(true);
+        consultorioRepository.save(consultorio);
+        return true;
+    }
+
+    public Page<DtoRespuestaConsultorio> listarConsultrios(Pageable pageable, Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
+        Page<Consultorio> consultorio;
+
+        if (usuarioLogueado.getRole() == UserRole.MEDICO) {
+            throw new AccessDeniedException("No tiene permiso para realizar esta acción.");
+        }
+        if (usuarioLogueado.getRole() == UserRole.ADMIN) {
+            consultorio = consultorioRepository.findAllOrderByClinica(pageable);
+        } else {
+            consultorio = consultorioRepository.findAllByClinica(pageable, usuarioLogueado.getClinica().getId());
+        }
+
+        if (consultorio.isEmpty()) {
+            throw new EntidadNoEncontradaException("No se encontro consultorios para mostrar");
+        }
+
+        List<DtoRespuestaConsultorio> dtoList = consultorio.getContent().stream()
+                .map(c -> new DtoRespuestaConsultorio(c))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList);
     }
 }

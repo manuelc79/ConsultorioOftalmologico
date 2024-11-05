@@ -37,4 +37,11 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
             AND p.activo = true
             """)
     List<Paciente> findByUsuariosIdAndActivoTrue(Long usuarioId);
+
+    @Query(value = """
+        SELECT p FROM Paciente p 
+        WHERE p.dni = :dni 
+        AND p.activo = false""")
+    @QueryHints(@QueryHint(name = "org.hibernate.cacheable", value = "true"))
+    Paciente findByDniAndActivoFalse(Long dni);
 }

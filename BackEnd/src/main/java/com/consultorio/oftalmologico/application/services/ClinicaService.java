@@ -1,5 +1,6 @@
 package com.consultorio.oftalmologico.application.services;
 
+import com.consultorio.oftalmologico.infraestructure.errors.errorsDto.DtoRespuestaErrores;
 import com.consultorio.oftalmologico.presentation.dto.clinica.DtoRegistroClinica;
 import com.consultorio.oftalmologico.presentation.dto.clinica.DtoRespuestaClinica;
 import com.consultorio.oftalmologico.domain.entities.clinica.Clinica;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 
@@ -31,7 +33,7 @@ public class ClinicaService {
         Clinica clinica = new Clinica();
         clinica.setNombre(dato.nombre());
         clinica.setDomicilio(dato.domicilio());
-        clinica.setIdentificacionFiscal(dato.informacionFiscal());
+        clinica.setIdentificacionFiscal(dato.identificacionFiscal());
         clinica.setActivo(dato.activo());
         clinicaRepository.save(clinica);
 
@@ -56,7 +58,7 @@ public class ClinicaService {
     }
 
     public DtoRespuestaClinica modificaClinica(DtoRegistroClinica dato) {
-        var clinica = clinicaRepository.findByIdentificacionFiscal(dato.informacionFiscal());
+        var clinica = clinicaRepository.findByIdentificacionFiscal(dato.identificacionFiscal());
         if (clinica == null) {
             throw new EntidadNoEncontradaException("Clinica no encontrada");
         }
@@ -66,21 +68,11 @@ public class ClinicaService {
         if (dato.domicilio() != null) {
             clinica.setDomicilio(dato.domicilio());
         }
-        if (dato.informacionFiscal() != null) {
-            clinica.setIdentificacionFiscal(dato.informacionFiscal());
+        if (dato.identificacionFiscal() != null) {
+            clinica.setIdentificacionFiscal(dato.identificacionFiscal());
         }
         clinicaRepository.save(clinica);
         return new DtoRespuestaClinica(clinica);
-    }
-
-    public Boolean eliminarClinica(Long id) {
-        var clinica = clinicaRepository.findByIdAndTrue(id);
-        if (clinica == null) {
-            return false;
-        }
-        clinica.setActivo(false);
-        clinicaRepository.save(clinica);
-        return true;
     }
 
     public DtoRespuestaClinica buscarClinicaPorCuit(String identificacionFiscal) {
@@ -97,5 +89,25 @@ public class ClinicaService {
             throw new EntidadNoEncontradaException("Clinica no Encontrada");
         }
         return  new DtoRespuestaClinica(clinica);
+    }
+
+    public Boolean eliminarClinica(Long id) {
+        var clinica = clinicaRepository.findByIdAndTrue(id);
+        if (clinica == null || !clinica.getActivo()) {
+            return false;
+        }
+        clinica.setActivo(false);
+        clinicaRepository.save(clinica);
+        return true;
+    }
+
+    public Boolean restaurarClinica(String identificaionFiscal) {
+        var clinica = clinicaRepository.findByIdentificacionFiscal(identificaionFiscal);
+        if (clinica == null || clinica.getActivo()) {
+            return false;
+        }
+        clinica.setActivo(true);
+        clinicaRepository.save(clinica);
+        return true;
     }
 }

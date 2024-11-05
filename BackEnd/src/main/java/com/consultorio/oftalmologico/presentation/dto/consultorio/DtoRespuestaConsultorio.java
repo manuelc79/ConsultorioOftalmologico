@@ -1,6 +1,8 @@
 package com.consultorio.oftalmologico.presentation.dto.consultorio;
 
+import com.consultorio.oftalmologico.domain.entities.clinica.Clinica;
 import com.consultorio.oftalmologico.domain.entities.consultorio.Consultorio;
+import com.consultorio.oftalmologico.domain.entities.usuario.Usuario;
 
 public record DtoRespuestaConsultorio(
         Long id,
@@ -8,7 +10,9 @@ public record DtoRespuestaConsultorio(
         String telefono,
         String localidad,
         String logo,
-        Long usuarioId) {
+        Boolean activo,
+        Long usuarioId,
+        Long clinicaId) {
 
     public DtoRespuestaConsultorio(Consultorio consultorio) {
         this(
@@ -17,6 +21,9 @@ public record DtoRespuestaConsultorio(
                 consultorio.getTelefono(),
                 consultorio.getLocalidad(),
                 consultorio.getLogo(),
-                consultorio.getUsuario().getId());
+                consultorio.getActivo(),
+                consultorio.getUsuario() != null ? consultorio.getUsuario().getId() : null,
+                consultorio.getClinica() != null ? consultorio.getClinica().getId() : null
+        );
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,21 +30,21 @@ public class PacienteController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<?> crearPaciente(@RequestBody @Valid DtoRegistroPaciente dato) {
-        var paciente = pacienteService.crearPaciente(dato);
+    public ResponseEntity<?> crearPaciente(@RequestBody @Valid DtoRegistroPaciente dato, Authentication authentication) {
+        var paciente = pacienteService.crearPaciente(dato, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).body(paciente);
     }
 
-    @GetMapping // Devuelve un listado de los pacientes discriminados por clinica
-    public ResponseEntity<?> listaPacientes(Pageable pageable, String email ) {
-        var pacientes = pacienteService.listarPacientes(pageable, email);
+    @GetMapping // Devuelve un listado de los pacientes discriminados por clínica
+    public ResponseEntity<?> listaPacientes(Pageable pageable, Authentication authentication) {
+        var pacientes = pacienteService.listarPacientes(pageable, authentication);
         return ResponseEntity.ok(pacientes.getContent());
     }
     
     @PostMapping("/find")
-    public ResponseEntity<?> buscarPorDni(@RequestBody DtoDni dni) {
+    public ResponseEntity<?> buscarPorDni(@RequestBody DtoDni dni, Authentication authentication) {
         try {
-            var paciente = pacienteService.buscarPorDni(dni.dni());
+            var paciente = pacienteService.buscarPorDni(dni.dni(), authentication);
             return ResponseEntity.ok(paciente);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -52,16 +53,16 @@ public class PacienteController {
         }
     }
 
-    @PostMapping("/find/by-user")
-    public ResponseEntity<List<DtoRespuestaPaciente>>listarPacientePorUsuario(@RequestBody DtoBuscarPorId dato) {
-        List<DtoRespuestaPaciente> pacientes = pacienteService.listarPacientesPorUsuario(dato.id());
+    @GetMapping("/find/by-user")
+    public ResponseEntity<List<DtoRespuestaPaciente>>listarPacientePorUsuario(Authentication authentication) {
+        List<DtoRespuestaPaciente> pacientes = pacienteService.listarPacientesPorUsuario(authentication);
         return ResponseEntity.ok(pacientes);
     }
 
     @DeleteMapping("/delete")
     @Transactional
-    public ResponseEntity<?> eliminaPaciente(@RequestBody DtoDni dni) {
-        Boolean eliminado = pacienteService.eliminarPaciente(dni.dni());
+    public ResponseEntity<?> eliminaPaciente(@RequestBody DtoDni dni, Authentication authentication) {
+        Boolean eliminado = pacienteService.eliminarPaciente(dni.dni(), authentication);
         if (eliminado) {
             return ResponseEntity.ok("Paciente eliminado correctamente");
         }
@@ -69,16 +70,21 @@ public class PacienteController {
                 HttpStatus.NOT_FOUND.toString(), "Paciente inexistente"));
     }
 
+    @PutMapping("/restore")
+    @Transactional
+    public ResponseEntity<?> recuperarPaciente(@RequestBody DtoDni dni, Authentication authentication) {
+        Boolean recuperado = pacienteService.recuperarPaceinte(dni.dni(), authentication);
+        if (recuperado) {
+            return ResponseEntity.ok("Paciente recuperado correctamente");
+        }
+        return  ResponseEntity.status(HttpStatus.NOT_FOUND).body( new DtoRespuestaErrores(
+                HttpStatus.NOT_FOUND.toString(), "Paciente inexistente"));
+    }
+
     @PutMapping
     @Transactional
-    public ResponseEntity<?> modificarPaciente(@RequestBody @Valid DtoModificaPaciente dato) {
-        try {
-            var paciente = pacienteService.modificarPaciente(dato);
+    public ResponseEntity<?> modificarPaciente(@RequestBody @Valid DtoModificaPaciente dato, Authentication authentication) {
+            var paciente = pacienteService.modificarPaciente(dato, authentication);
             return ResponseEntity.ok(paciente);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new DtoRespuestaErrores(HttpStatus.NOT_FOUND.toString(),
-                            "Paciente no encontrado"));
-        }
     }
 }

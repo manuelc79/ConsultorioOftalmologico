@@ -1,7 +1,6 @@
 package com.consultorio.oftalmologico.presentation.dto.consulta;
 
 import com.consultorio.oftalmologico.domain.entities.historiaclinica.HistoriaClinica;
-import com.consultorio.oftalmologico.domain.entities.usuario.Usuario;
 
 import java.time.LocalDate;
 
@@ -17,7 +16,8 @@ public record DtoRespuestaConsulta(
         String lentesParaCercaAO,
         String observaciones,
         Long pacienteDni,
-        Usuario usuario) {
+        Long usuarioId,
+        Long clinicaId) {
 
         public DtoRespuestaConsulta(HistoriaClinica historiaClinica) {
                 this(
@@ -31,7 +31,8 @@ public record DtoRespuestaConsulta(
                         historiaClinica.getLentesParaLejosOD(),
                         historiaClinica.getLentesParaCercaAO(),
                         historiaClinica.getObservaciones(),
-                        historiaClinica.getPacienteDni(),
-                        historiaClinica.getUsuario());
+                        historiaClinica.getPaciente().getDni(),
+                        historiaClinica.getUsuario().getId(),
+                        historiaClinica.getClinica().getId());
         }
 }

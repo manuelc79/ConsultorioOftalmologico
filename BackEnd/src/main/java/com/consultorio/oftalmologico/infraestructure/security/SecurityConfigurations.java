@@ -27,36 +27,20 @@ public class SecurityConfigurations {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/login").permitAll()
-                        .requestMatchers("/api/clinica/**").hasAnyRole("ADMIN", "DIRECTOR")
-                        .requestMatchers("/api/consultorio/**").hasAnyRole("ADMIN", "DIRECTOR", "MEDICO")
-                        .requestMatchers("/api/director/**").hasRole("ADMIN")
-                        .requestMatchers("/api/medico/**").hasRole("ADMIN")
-                        .requestMatchers("/api/paciente/**").hasAnyRole("MEDICO", "DIRECTOR", "ADMIN")
+                        .requestMatchers("/api/clinica/**").hasRole("ADMIN")
+                         .requestMatchers("/api/consultorio/**").hasAnyRole("ADMIN", "DIRECTOR", "MEDICO")
+                         .requestMatchers("/api/medico/**").hasAnyRole("ADMIN", "DIRECTOR", "MEDICO")
+                         .requestMatchers("/api/paciente/**").hasAnyRole("MEDICO", "DIRECTOR")
+                        .requestMatchers("api/consultas/**").hasAnyRole("DIRECTOR", "MEDICO")
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    // Version sin configuracion para Roles de Usuarios
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-//        return httpSecurity.csrf(csrf -> csrf.disable())
-//                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authorizeHttpRequests(authRequest -> authRequest
-//                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/api/medico").permitAll()
-//                        .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
-//                        .anyRequest()
-//                        .authenticated())
-//                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-//                .build();
-//    }
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-        throws Exception {
+            throws Exception {
 
         return authenticationConfiguration.getAuthenticationManager();
     }

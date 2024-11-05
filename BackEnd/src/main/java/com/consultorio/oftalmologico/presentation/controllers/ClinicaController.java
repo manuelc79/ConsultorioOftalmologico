@@ -103,5 +103,17 @@ public class ClinicaController {
                 HttpStatus.NOT_FOUND.toString(), "Clinica no encontrada"));
     }
 
+    @PutMapping("/restore")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> recuperarClinica(@RequestBody DtoIdentificacionFiscal dato) {
+        Boolean recuperado = clinicaService.restaurarClinica(dato.identificacionFiscal());
+        if (recuperado) {
+            return ResponseEntity.ok("Clinica restaurada exitosamente");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new DtoRespuestaErrores(HttpStatus.NOT_FOUND.toString(),
+                        "Clinica no encontrada o actulmente en actividad"));
+    }
+
 
 }

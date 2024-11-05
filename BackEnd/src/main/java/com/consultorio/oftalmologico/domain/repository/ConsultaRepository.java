@@ -1,6 +1,7 @@
 package com.consultorio.oftalmologico.domain.repository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ import jakarta.persistence.QueryHint;
 public interface ConsultaRepository extends JpaRepository<HistoriaClinica, Long> {
     @Query(value = """
         SELECT h FROM HistoriaClinica h 
-        WHERE h.pacienteDni = :pacienteDni 
+        WHERE h.paciente.dni = :pacienteDni 
         AND h.fechaConsulta = :fecha 
         AND h.activo = true""")
     @QueryHints(@QueryHint(name = "org.hibernate.cacheable", value = "true"))
@@ -25,24 +26,33 @@ public interface ConsultaRepository extends JpaRepository<HistoriaClinica, Long>
 
     @Query("""
             SELECT c FROM HistoriaClinica c
-            WHERE c.id =:id
+            WHERE c.id = :id
+            AND c.clinica.id = :clinicaId
             AND c.activo != false
             """)
-    HistoriaClinica findByIdAndActivo(Long id);
+    HistoriaClinica findByIdAndActivo(Long id, Long clinicaId);
 
     @Query("""
             SELECT c FROM HistoriaClinica c
-            WHERE c.pacienteDni =:pacienteDni
+            WHERE c.paciente.dni = :pacienteDni
+            AND c.clinica.id = :clinicaId
             AND c.activo != false
             ORDER BY c.fechaConsulta DESC
             """)
-    Page<HistoriaClinica> findByPacienteDniAndActivo(Long pacienteDni, Pageable pageable);
+    Page<HistoriaClinica> findByPacienteDniAndActivo(Long pacienteDni, Pageable pageable, Long clinicaId);
 
     @Query("""
             SELECT c FROM HistoriaClinica c
             WHERE c.fechaConsulta = :fecha
             AND c.usuario.id = :usuarioId
+            AND c.clinica.id = :clinicaId
             AND c.activo != false
             """)
-    Page<HistoriaClinica> findAllByFechaConsulta(LocalDate fecha, Long usuarioId, Pageable pageable);
+    Page<HistoriaClinica> findAllByFechaConsulta(LocalDate fecha, Long usuarioId, Pageable pageable, Long clinicaId);
+
+    @Query("""
+            SELECT c FROM HistoriaClinica c
+            WHERE c.clinica.id = :clinicaId
+            """)
+    Page<HistoriaClinica> findAllByConsultorio(Pageable page, Long clinicaId);
 }

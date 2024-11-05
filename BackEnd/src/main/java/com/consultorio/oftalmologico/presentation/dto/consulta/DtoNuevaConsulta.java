@@ -1,5 +1,6 @@
 package com.consultorio.oftalmologico.presentation.dto.consulta;
 
+import com.consultorio.oftalmologico.domain.entities.paciente.Paciente;
 import com.consultorio.oftalmologico.domain.entities.usuario.Usuario;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,7 +15,5 @@ public record DtoNuevaConsulta(
         String lentesParaCercaAO,
         String observaciones,
         @NotNull(message = "El dni de paciente es obligatorio")
-        Long pacienteDni,
-        @NotNull(message = "El id del Medico es obligatorio")
-        Usuario usuario) {
+        Long pacienteDni) {
 }

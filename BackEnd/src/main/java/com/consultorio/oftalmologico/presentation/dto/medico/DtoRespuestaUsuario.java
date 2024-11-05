@@ -1,7 +1,5 @@
 package com.consultorio.oftalmologico.presentation.dto.medico;
 
-import com.consultorio.oftalmologico.domain.entities.clinica.Clinica;
-import com.consultorio.oftalmologico.domain.entities.consultorio.Consultorio;
 import com.consultorio.oftalmologico.domain.entities.usuario.DetallesUsuario;
 import com.consultorio.oftalmologico.domain.entities.usuario.Usuario;
 import com.consultorio.oftalmologico.domain.enums.UserRole;
@@ -16,10 +14,9 @@ public record DtoRespuestaUsuario(
         Long telefono,
         Boolean activo,
         UserRole role,
-        Clinica clinica,
-        Consultorio consultorio
+        Long clinicaId,
+        Long consultorioId) {
 
-) {
     public DtoRespuestaUsuario(Usuario usuario, DetallesUsuario detallesUsuario) {
         this(
                 usuario.getId(),
@@ -31,9 +28,7 @@ public record DtoRespuestaUsuario(
                 detallesUsuario.getTelefono(),
                 usuario.getActivo(),
                 usuario.getRole(),
-                usuario.getClinica(),
-                usuario.getConsultorio()
-
-        );
+                usuario.getClinica() != null ? usuario.getClinica().getId() : null,
+                usuario.getConsultorio() != null ? usuario.getConsultorio().getId() : null);
     }
 }

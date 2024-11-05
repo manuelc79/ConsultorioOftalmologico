@@ -37,10 +37,6 @@ public class Paciente {
     private Clinica clinica;
 
     @ManyToMany
-    @JoinTable(
-        name = "paciente_usuario",
-        joinColumns = @JoinColumn(name = "paciente_id"),
-        inverseJoinColumns = @JoinColumn(name = "usuario_id")
-    )
+    @JoinTable(name = "paciente_usuario", joinColumns = @JoinColumn(name = "paciente_id"), inverseJoinColumns = @JoinColumn(name = "usuario_id"))
     private List<Usuario> usuarios;
 }

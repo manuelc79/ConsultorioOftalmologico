@@ -18,7 +18,6 @@ public record DtoRegistroPaciente (
         Long dni,
         String ObraSocial,
         String numeroObraSocial,
-        Clinica clinica,
         Boolean activo
 ){
 }

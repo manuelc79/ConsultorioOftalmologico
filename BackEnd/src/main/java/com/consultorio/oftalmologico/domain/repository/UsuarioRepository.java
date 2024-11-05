@@ -1,12 +1,14 @@
 package com.consultorio.oftalmologico.domain.repository;
 
 
-import com.consultorio.oftalmologico.domain.entities.usuario.Usuario;
-import com.consultorio.oftalmologico.domain.enums.UserRole;
-import com.consultorio.oftalmologico.presentation.dto.medico.DtoRespuestaUsuario;
-import jakarta.validation.constraints.NotNull;
+import java.util.Collection;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import com.consultorio.oftalmologico.domain.entities.usuario.Usuario;
+import com.consultorio.oftalmologico.domain.enums.UserRole;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
@@ -23,9 +25,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     @Query("""
             SELECT u FROM Usuario u
-            WHERE u.id =:id
+            WHERE u.id = :id
             """)
-    DtoRespuestaUsuario findByUserId(Long id);
+    Usuario findByUserId(Long id);
 
     @Query("""
             SELECT COUNT(u) > 0 FROM Usuario u
@@ -36,8 +38,21 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Query("""
             SELECT u FROM Usuario u
             WHERE u.id = :id
-            AND u.clinica.id = :clinicaId
             AND u.activo = false
             """)
-    Usuario findByIdAndActivoFalse(Long id, Long clinicaId);
+    Usuario findByIdAndActivoFalse(Long id);
+
+    @Query("""
+            SELECT u FROM Usuario u
+            WHERE u.clinica.id = :clinicaId
+            AND u.activo = true
+            """)
+    List<Usuario> findByClinicaId(Long clinicaId);
+
+    @Query("""
+            SELECT u FROM Usuario u
+            WHERE u.role != ADMIN
+            ORDER BY u.clinica.id
+            """)
+    Collection<Usuario> findAllAndNotAdmin();
 }

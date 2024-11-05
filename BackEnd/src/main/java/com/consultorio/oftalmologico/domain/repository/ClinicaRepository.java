@@ -30,8 +30,8 @@ public interface ClinicaRepository extends JpaRepository<Clinica, Long> {
     @Query("""
             SELECT c FROM Clinica c
             WHERE c.identificacionFiscal = :iFiscal
-            AND c.activo != false
             """)
     Clinica findByIdentificacionFiscal(String iFiscal);
+
 
 }

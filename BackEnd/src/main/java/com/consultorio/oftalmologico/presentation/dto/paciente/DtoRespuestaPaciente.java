@@ -14,7 +14,7 @@ public record DtoRespuestaPaciente(
         Long dni,
         String ObraSocial,
         String numeroObraSocial,
-        Clinica clinica,
+        Long clinicaId,
         Boolean activo
 ) {
         public DtoRespuestaPaciente(Paciente paciente) {
@@ -26,7 +26,7 @@ public record DtoRespuestaPaciente(
                         paciente.getDni(),
                         paciente.getObraSocial(),
                         paciente.getNumeroObraSocial(),
-                        paciente.getClinica(),
+                        paciente.getClinica().getId(),
                         paciente.getActivo()
                 );
         }

@@ -4,7 +4,7 @@ public record DtoRegistroClinica(
         Long id,
         String nombre,
         String domicilio,
-        String informacionFiscal,
+        String identificacionFiscal,
         Boolean activo
        ) {
 }

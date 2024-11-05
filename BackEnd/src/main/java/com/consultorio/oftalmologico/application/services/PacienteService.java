@@ -4,13 +4,17 @@ import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.consultorio.oftalmologico.domain.repository.ClinicaRepository;
+import com.consultorio.oftalmologico.infraestructure.errors.exceptions.EntidadNoEncontradaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +36,9 @@ public class PacienteService {
     private PacienteRepository pacienteRepository;
 
     @Autowired
+    ClinicaRepository clinicaRepository;
+
+    @Autowired
     UsuarioRepository usuarioRepository;
 
     private void validarAccesoClinica(Usuario usuario, Long clinicaId) throws AccessDeniedException {
@@ -47,17 +54,23 @@ public class PacienteService {
     }
 
     @Cacheable(value = "pacienteCache", key = "#dni")
-    public DtoRespuestaPaciente buscarPorDni(Long dni) {
+    public DtoRespuestaPaciente buscarPorDni(Long dni, Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
         var paciente = pacienteRepository.findByDniAndActivo(dni);
-        if (paciente == null) {
+        if (paciente == null || !Objects.equals(paciente.getClinica().getId(), usuarioLogueado.getClinica().getId())) {
             throw new ObjectAlreadyExistsException("Paciente no encontrado");
         }
+
         return new DtoRespuestaPaciente(paciente);
     }
 
     @Transactional
     @CacheEvict(value = "pacienteCache", key = "#dato.dni")
-    public DtoRespuestaPaciente crearPaciente(DtoRegistroPaciente dato) {
+    public DtoRespuestaPaciente crearPaciente(DtoRegistroPaciente dato, Authentication authentication) {
+        var usarioLogueado = (Usuario) authentication.getPrincipal();
+        if (clinicaRepository.findByIdAndTrue(usarioLogueado.getClinica().getId()) == null) {
+            throw new EntidadNoEncontradaException("Clínica inexistente");
+        }
         if (pacienteRepository.findByDniAndActivo(dato.dni()) != null){
             throw new ObjectAlreadyExistsException("El DNI ya está en uso");
         }
@@ -69,21 +82,16 @@ public class PacienteService {
         paciente.setDni(dato.dni());
         paciente.setObraSocial(dato.ObraSocial());
         paciente.setNumeroObraSocial(dato.numeroObraSocial());
-        paciente.setClinica(dato.clinica());
+        paciente.setClinica(usarioLogueado.getClinica());
         paciente.setActivo(true);
         pacienteRepository.save(paciente);
 
         return new DtoRespuestaPaciente(paciente); //, calcularEdad(paciente.getFechaNacimiento()));
     }
 
-    public Page<DtoRespuestaPaciente> listarPacientes(Pageable pageable, String userEmail) {
-        var usuario = usuarioRepository.findByEmail(userEmail);
-        var clinicaId = usuario.getClinica().getId();
-
-        if (usuario.getRole() == UserRole.ADMIN) {
-            return pacienteRepository.findAll(pageable)
-                    .map(DtoRespuestaPaciente::new);
-        }
+    public Page<DtoRespuestaPaciente> listarPacientes(Pageable pageable, Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
+        var clinicaId = usuarioLogueado.getClinica().getId();
 
         return pacienteRepository.findByClinicaIdOrderByApellido(clinicaId, pageable)
                 .map(DtoRespuestaPaciente::new);
@@ -96,9 +104,10 @@ public class PacienteService {
 //        return new PageImpl<>(dtoList);
     }
 
-    public Boolean eliminarPaciente(Long dni) {
+    public Boolean eliminarPaciente(Long dni, Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
         var paciente = pacienteRepository.findByDniAndActivo(dni);
-        if (paciente == null) {
+        if (paciente == null || !Objects.equals(usuarioLogueado.getClinica().getId(), paciente.getClinica().getId())) {
             return false;
         }
         paciente.setActivo(false);
@@ -106,9 +115,10 @@ public class PacienteService {
         return true;
     }
 
-    public DtoRespuestaPaciente modificarPaciente(DtoModificaPaciente dato) {
+    public DtoRespuestaPaciente modificarPaciente(DtoModificaPaciente dato, Authentication authentication) {
+        var usuaroLogueado = (Usuario) authentication.getPrincipal();
         var paciente = pacienteRepository.findByDniAndActivo(dato.dni());
-        if (paciente == null) {
+        if (paciente == null || !Objects.equals(usuaroLogueado.getClinica().getId(), paciente.getClinica().getId())) {
             throw new ObjectAlreadyExistsException("Paciente no registrado");
         }
         if (dato.apellido() != null) {
@@ -130,10 +140,22 @@ public class PacienteService {
         return new DtoRespuestaPaciente(paciente);
     }
 
-    public List<DtoRespuestaPaciente> listarPacientesPorUsuario(Long usuarioId) {
-        List<Paciente> pacientes = pacienteRepository.findByUsuariosIdAndActivoTrue(usuarioId);
+    public List<DtoRespuestaPaciente> listarPacientesPorUsuario(Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
+        List<Paciente> pacientes = pacienteRepository.findByUsuariosIdAndActivoTrue(usuarioLogueado.getId());
         return pacientes.stream()
                 .map(DtoRespuestaPaciente::new)
                 .collect(Collectors.toList());
+    }
+
+    public Boolean recuperarPaceinte(Long dni, Authentication authentication) {
+        var usuarioLogueado = (Usuario) authentication.getPrincipal();
+        var paciente = pacienteRepository.findByDniAndActivoFalse(dni);
+        if (paciente == null || !Objects.equals(usuarioLogueado.getClinica().getId(), paciente.getClinica().getId())) {
+            return false;
+        }
+        paciente.setActivo(true);
+        pacienteRepository.save(paciente);
+        return true;
     }
 }

@@ -1,5 +1,7 @@
 package com.consultorio.oftalmologico.application.services;
 
+import com.consultorio.oftalmologico.domain.entities.usuario.Usuario;
+import com.consultorio.oftalmologico.presentation.dto.DtoBuscaPorFecha;
 import com.consultorio.oftalmologico.presentation.dto.consulta.DtoConsultaDiaria;
 import com.consultorio.oftalmologico.presentation.dto.consulta.DtoModificaConsulta;
 import com.consultorio.oftalmologico.presentation.dto.consulta.DtoNuevaConsulta;
@@ -15,10 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,12 +38,15 @@ public class ConsultasService {
     UsuarioRepository usuarioRepository;
 
 
-    public DtoRespuestaConsulta guardarConsulta(DtoNuevaConsulta dato, Long clinicaId) {
-        var medico = usuarioRepository.findByIdAndActivo(dato.usuario().getId(), clinicaId);
+    public DtoRespuestaConsulta guardarConsulta(DtoNuevaConsulta dato, Authentication authentication) throws AccessDeniedException {
+        var medico = (Usuario) authentication.getPrincipal();
 
         var paciente = pacienteRepository.findByDniAndActivo(dato.pacienteDni());
         if (paciente == null) {
             throw new EntidadNoEncontradaException("Paciente inexistente");
+        }
+        if (!Objects.equals(paciente.getClinica().getId(), medico.getClinica().getId())) {
+            throw new AccessDeniedException("No puedes realizar esta acción");
         }
         var consulta = consultaRepository.findByPacienteDniAndFechaConsulta(dato.pacienteDni(), LocalDate.now());
         if (consulta != null) {
@@ -54,17 +62,22 @@ public class ConsultasService {
         historiaClinica.setLentesParaLejosOD(dato.lentesParaLejosOD());
         historiaClinica.setLentesParaCercaAO(dato.lentesParaCercaAO());
         historiaClinica.setObservaciones(dato.observaciones());
-        historiaClinica.setPacienteDni(dato.pacienteDni());
-        historiaClinica.setUsuario(dato.usuario());
+        historiaClinica.setPaciente(paciente);
+        historiaClinica.setUsuario(medico);
         historiaClinica.setActivo(true);
+        historiaClinica.setClinica(medico.getClinica());
         consultaRepository.save(historiaClinica);
         return new DtoRespuestaConsulta(historiaClinica);
     }
 
-    public DtoRespuestaConsulta modificaConstulta(DtoModificaConsulta dato) {
-        var consulta = consultaRepository.findByIdAndActivo(dato.id());
+    public DtoRespuestaConsulta modificaConstulta(DtoModificaConsulta dato, Authentication authentication) throws AccessDeniedException {
+        var medico = (Usuario) authentication.getPrincipal();
+        var consulta = consultaRepository.findByIdAndActivo(dato.id(), medico.getClinica().getId());
         if (consulta == null){
             throw new ObjectAlreadyExistsException("Consulta inexistente");
+        }
+        if (consulta.getClinica().getId() != medico.getClinica().getId()) {
+            throw new AccessDeniedException("No puedes realizar esta acción");
         }
         if (dato.fechaConsulta() != null){
             consulta.setFechaConsulta(dato.fechaConsulta());
@@ -97,20 +110,25 @@ public class ConsultasService {
         return new DtoRespuestaConsulta(consulta);
     }
 
-    public Page<DtoRespuestaConsulta> consultar(Pageable page) {
-        return consultaRepository.findAll(page).map(DtoRespuestaConsulta::new);
+    public Page<DtoRespuestaConsulta> consultar(Pageable page, Authentication authentication) {
+        var medico = (Usuario) authentication.getPrincipal();
+
+        return consultaRepository.findAllByConsultorio(page, medico.getClinica().getId()).map(DtoRespuestaConsulta::new);
     }
 
-    public DtoRespuestaConsulta buscarPacienteId(Long id) {
-        var consulta = consultaRepository.findByIdAndActivo(id);
+    public DtoRespuestaConsulta buscarConsultaId(Long id, Authentication authentication) {
+        var medico = (Usuario) authentication.getPrincipal();
+
+        var consulta = consultaRepository.findByIdAndActivo(id, medico.getClinica().getId());
         if (consulta == null) {
             throw new ObjectAlreadyExistsException("Consulta inexistente");
         }
         return new DtoRespuestaConsulta(consulta);
     }
 
-    public Page<DtoRespuestaConsulta> listarPorPaciente(Long pacienteDni, Pageable pageable) {
-        var consulta = consultaRepository.findByPacienteDniAndActivo(pacienteDni, pageable);
+    public Page<DtoRespuestaConsulta> listarPorPaciente(Long pacienteDni, Pageable pageable, Authentication authentication) {
+        var medico = (Usuario) authentication.getPrincipal();
+        var consulta = consultaRepository.findByPacienteDniAndActivo(pacienteDni, pageable, medico.getClinica().getId());
         if (consulta.isEmpty() ){
             throw new EntidadNoEncontradaException("Consulta inexistente");
         }
@@ -120,24 +138,27 @@ public class ConsultasService {
         return new PageImpl<>(dtoList);
     }
 
-    public Page<DtoConsultaDiaria> listarPorFecha(LocalDate fecha, Long usuarioId, Pageable pageable) {
-        var consulta = consultaRepository.findAllByFechaConsulta(fecha, usuarioId, pageable);
+    public Page<DtoConsultaDiaria> listarPorFecha(DtoBuscaPorFecha dato, Pageable pageable, Authentication authentication) {
+        var medico = (Usuario) authentication.getPrincipal();
+        var consulta = consultaRepository.findAllByFechaConsulta(dato.fechaConsulta(), medico.getId(), pageable, medico.getClinica().getId());
         if (consulta.isEmpty()) {
             throw new EntidadNoEncontradaException("No se encontró consulta para la fecha solicitada");
         }
 
         return consulta.map(c -> {
-                    Paciente paciente = pacienteRepository.findByDniAndActivo(c.getPacienteDni());
+                    Paciente paciente = pacienteRepository.findByDniAndActivo(c.getPaciente().getDni());
                     return new DtoConsultaDiaria(c, paciente);
                 }
         );
     }
 
-    public Boolean eliminarConsulta(Long id) {
-        var consulta = consultaRepository.findByIdAndActivo(id);
+    public Boolean eliminarConsulta(Long id, Authentication authentication) {
+        var medico = (Usuario) authentication.getPrincipal();
+        var consulta = consultaRepository.findByIdAndActivo(id, medico.getClinica().getId() );
         if (consulta == null) {
             return false;
         }
+
         consultaRepository.delete(consulta);
         return true;
     }
