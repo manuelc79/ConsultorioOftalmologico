@@ -1,9 +1,12 @@
 package com.consultorio.oftalmologico.application.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.consultorio.oftalmologico.domain.entities.RegistroActividad;
+import com.consultorio.oftalmologico.domain.repository.RegistroActividadRepository;
+import com.consultorio.oftalmologico.presentation.dto.registroActividad.DtoRegistroActividad;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -26,14 +29,20 @@ import com.consultorio.oftalmologico.presentation.dto.consultorio.DtoRespuestaCo
 @Service
 public class ConsultorioService {
 
-    @Autowired
-    private ConsultorioRepository consultorioRepository;
+    private final ConsultorioRepository consultorioRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private ClinicaRepository clinicaRepository;
+    private final ClinicaRepository clinicaRepository;
+
+    private final RegistroActividadService registroActividadService;
+
+    public ConsultorioService(ConsultorioRepository consultorioRepository, UsuarioRepository usuarioRepository, ClinicaRepository clinicaRepository, RegistroActividadRepository registroActividadRepository, RegistroActividadService registroActividadService) {
+        this.consultorioRepository = consultorioRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.clinicaRepository = clinicaRepository;
+        this.registroActividadService = registroActividadService;
+    }
 
     public DtoRespuestaConsultorio crearConsultorio(DtoRegistroConsultorio dato, Authentication authentication) {
         var usuarioLogueado = (Usuario) authentication.getPrincipal();
@@ -46,12 +55,11 @@ public class ConsultorioService {
             if (usuario == null) {
                 throw new EntidadNoEncontradaException("Medico inexistente");
             }
-
-            var consultorioExistente = consultorioRepository.findByUsuarioId(dato.usuario().getId());
-            if (consultorioExistente != null) {
+            if (consultorioRepository.findByUsuarioId(dato.usuario().getId()) != null) {
                 throw new ObjectAlreadyExistsException("Este medico ya tiene asignado un consultorio");
             }
         }
+
         if (dato.clinica() == null || clinicaRepository.findByIdAndTrue(dato.clinica().getId()) == null) {
             throw new EntidadNoEncontradaException("Clínica inexistente, debe enviar un valor de clínica válido");
         }
@@ -66,6 +74,13 @@ public class ConsultorioService {
         nuevoConsultorio.setClinica(dato.clinica());
 
         consultorioRepository.save(nuevoConsultorio);
+
+        // Registrar la actividad
+        registroActividadService.registroActividad(new DtoRegistroActividad(
+                null, usuarioLogueado.getId(), "CREAR",
+                "Se registró un nuevo consultorio " + nuevoConsultorio.getId()
+        ));
+
         return new DtoRespuestaConsultorio(nuevoConsultorio);
     }
 
@@ -96,6 +111,13 @@ public class ConsultorioService {
         
         actualizarConsultorio(dato, consultorio, usuarioLogueado);
         consultorioRepository.save(consultorio);
+
+        // Registrar la actividad
+        registroActividadService.registroActividad(new DtoRegistroActividad(
+                null, usuarioLogueado.getId(), "MODIFICAR",
+                "Se modificó consultorio " + consultorio.getId()
+        ));
+
         return new DtoRespuestaConsultorio(consultorio);
     }
 
@@ -151,6 +173,13 @@ public class ConsultorioService {
         }
         consultorio.setActivo(false);
         consultorioRepository.save(consultorio);
+
+        // Registrar la actividad
+        registroActividadService.registroActividad(new DtoRegistroActividad(
+                null, usuarioLogueado.getId(), "ELIMINAR",
+                "Se eliminó el consultorio " + consultorio.getId()
+        ));
+
         return true;
     }
 
@@ -165,6 +194,13 @@ public class ConsultorioService {
         }
         consultorio.setActivo(true);
         consultorioRepository.save(consultorio);
+
+        // Registrar la actividad
+        registroActividadService.registroActividad(new DtoRegistroActividad(
+                null, usuarioLogueado.getId(), "RECUPERAR",
+                "Se restauró el consultorio " + consultorio.getId()
+        ));
+
         return true;
     }
 
@@ -182,7 +218,7 @@ public class ConsultorioService {
         }
 
         if (consultorio.isEmpty()) {
-            throw new EntidadNoEncontradaException("No se encontro consultorios para mostrar");
+            throw new EntidadNoEncontradaException("No se encontró consultorios para mostrar");
         }
 
         List<DtoRespuestaConsultorio> dtoList = consultorio.getContent().stream()

@@ -7,6 +7,7 @@ public record DtoRespuestaClinica(
         String nombre,
         String domicilio,
         String identificacionFiscal,
+        String pais,
         Boolean activo) {
 
     public DtoRespuestaClinica (Clinica clinica) {
@@ -15,6 +16,7 @@ public record DtoRespuestaClinica(
                 clinica.getNombre(),
                 clinica.getDomicilio(),
                 clinica.getIdentificacionFiscal(),
+                clinica.getPais(),
                 clinica.getActivo()
         );
     }

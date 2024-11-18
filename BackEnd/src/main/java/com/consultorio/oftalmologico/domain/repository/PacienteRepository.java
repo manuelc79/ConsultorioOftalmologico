@@ -18,9 +18,10 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
     @Query(value = """
         SELECT p FROM Paciente p 
         WHERE p.dni = :dni 
+        AND p.clinica.pais = :pais
         AND p.activo = true""")
     @QueryHints(@QueryHint(name = "org.hibernate.cacheable", value = "true"))
-    Paciente findByDniAndActivo(Long dni);
+    Paciente findByDniAndActivo(Long dni, String pais);
 
     @Query(value = """
         SELECT p FROM Paciente p 
@@ -40,8 +41,9 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
 
     @Query(value = """
         SELECT p FROM Paciente p 
-        WHERE p.dni = :dni 
+        WHERE p.dni = :dni
+        AND p.clinica.pais = :pais
         AND p.activo = false""")
     @QueryHints(@QueryHint(name = "org.hibernate.cacheable", value = "true"))
-    Paciente findByDniAndActivoFalse(Long dni);
+    Paciente findByDniAndActivoFalse(Long dni, String pais);
 }

@@ -24,74 +24,46 @@ public class GlobalExceptionHandler {
         } else {
             mensaje += ex.getMostSpecificCause().getMessage();
         }
-        
-        var errores = new DtoRespuestaErrores(
-                HttpStatus.BAD_REQUEST.toString(),
-                mensaje
-        );
-        return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+        return buildResponse(HttpStatus.BAD_REQUEST, mensaje);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<DtoRespuestaErrores> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        var errores = new DtoRespuestaErrores(
-                HttpStatus.BAD_REQUEST.toString(),
-                "Error de integridad de datos: Verifica que todas las relaciones necesarias existan"
-        );
-        return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+        return buildResponse(HttpStatus.BAD_REQUEST, "Error de integridad de datos: Verifica que todas las relaciones necesarias existan");
     }
 
     @ExceptionHandler(RelacionNoValidaException.class)
     public ResponseEntity<DtoRespuestaErrores> handleRelacionNoValidaException(RelacionNoValidaException ex) {
-        var errores = new DtoRespuestaErrores(
-                HttpStatus.BAD_REQUEST.toString(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<DtoRespuestaErrores> handleAccessDeniedException(AccessDeniedException ex) {
-        var errores = new DtoRespuestaErrores(
-                HttpStatus.FORBIDDEN.toString(),
-                "Acceso denegado: No tiene los permisos necesarios"
-        );
-        return new ResponseEntity<>(errores, HttpStatus.FORBIDDEN);
+        return buildResponse(HttpStatus.FORBIDDEN, "Acceso denegado: No tiene los permisos necesarios");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<DtoRespuestaErrores> handleIllegalArgumentException(IllegalArgumentException ex) {
-        var errores = new DtoRespuestaErrores(
-                HttpStatus.BAD_REQUEST.toString(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(EntidadNoEncontradaException.class)
     public ResponseEntity<DtoRespuestaErrores> handleEntidadNoEncontradaException(EntidadNoEncontradaException ex) {
-        var errores = new DtoRespuestaErrores(
-                HttpStatus.NOT_FOUND.toString(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(errores, HttpStatus.NOT_FOUND);
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(ObjectAlreadyExistsException.class)
     public ResponseEntity<DtoRespuestaErrores> handleObjectAlreadyExistsException(ObjectAlreadyExistsException ex) {
-        var errores = new DtoRespuestaErrores(
-                HttpStatus.BAD_REQUEST.toString(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<DtoRespuestaErrores> handleGenericException(Exception ex) {
-        var errores = new DtoRespuestaErrores(
-                HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-                "Error interno del servidor: " + ex.getMessage()
-        );
-        return new ResponseEntity<>(errores, HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor: " + ex.getMessage());
+    }
+
+    private ResponseEntity<DtoRespuestaErrores> buildResponse(HttpStatus status, String message) {
+        DtoRespuestaErrores errores = new DtoRespuestaErrores(status.toString(), message);
+        return new ResponseEntity<>(errores, status);
     }
 }
